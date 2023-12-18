@@ -21,7 +21,7 @@ pico_generate_pio_header(stepper ${CMAKE_CURRENT_LIST_DIR}/stepper.pio)
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} pico_stdlib hardware_i2c stepper lora)
+target_link_libraries(${PROJECT_NAME} pico_stdlib hardware_i2c stepper lora eeprom debounce)
 target_link_libraries(stepper         pico_stdlib hardware_pio)
 target_link_libraries(lora            pico_stdlib hardware_uart)
 target_link_libraries(eeprom          pico_stdlib hardware_i2c)
