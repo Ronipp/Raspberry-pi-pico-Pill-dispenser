@@ -27,6 +27,7 @@ typedef struct stepper_ctx{
     float speed;
     bool stepper_calibrated;
     bool stepper_calibrating;
+    bool running;
     PIO pio_instance;
     uint state_machine;
     uint program_offset;
@@ -42,7 +43,7 @@ void stepper_stop(stepper_ctx *ctx);
 void stepper_set_direction(stepper_ctx *ctx, bool clockwise);
 void stepper_calibrate(stepper_ctx *ctx);
 
-bool stepper_is_stopped(const stepper_ctx *ctx);
+bool stepper_is_running(const stepper_ctx *ctx);
 bool stepper_is_calibrated(const stepper_ctx *ctx);
 bool stepper_is_calibrating(const stepper_ctx *ctx);
 uint16_t stepper_get_max_steps(const stepper_ctx *ctx);

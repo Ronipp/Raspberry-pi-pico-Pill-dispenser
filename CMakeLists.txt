@@ -11,7 +11,7 @@ set(source_location ${CMAKE_CURRENT_LIST_DIR}/src)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/lib)
 
 
-add_executable(${PROJECT_NAME} main.c)
+add_executable(${PROJECT_NAME} testmain.c)
 add_library(debounce ${source_location}/debounce.c)
 add_library(stepper  ${source_location}/stepper.c)
 add_library(lora     ${source_location}/lora.c)
