@@ -1,6 +1,8 @@
 
-#include "eemprom.h"
+#include "C:\Users\Mage\Documents\GitHub\embedded_project\lib\eeprom.h"
 #include "watchdog.h"
+#include "stdint.h"
+#include "stdbool.h"
 
 #define EEPROM_ARR_LENGTH 64
 #define MIN_LOG_LEN 3
@@ -137,7 +139,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     {
         // Extract and assign values from the array to the struct fields.
         ptrToEepromStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
-        ptrToEepromStruct->reboot_Status = valuesRead[REBOOT_STATUS_CODE];
+        ptrToEepromStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
         ptrToEepromStruct->prevCalibStepCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
         ptrToEepromStruct->prevCalibStepCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
         eepromReadSuccess = true;                                                                     // Data integrity verified
@@ -145,7 +147,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
 
     // Read watchdog values into the struct from the scratch register.
     ptrToWatchdogStruct->pillDispenseState = watchdog_hw->scratch[0];
-    ptrToWatchdogStruct->reboot_Status = watchdog_hw->scratch[1];
+    ptrToWatchdogStruct->rebootStatusCode = watchdog_hw->scratch[1];
     ptrToWatchdogStruct->prevCalibStepCount = watchdog_hw->scratch[2];
 
     return eepromReadSuccess;
