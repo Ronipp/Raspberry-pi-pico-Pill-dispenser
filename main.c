@@ -7,6 +7,7 @@
 #include "stepper.h"
 #include "lora.h"
 #include "eeprom.h"
+#include "magnusFuncs.h"
 
 #include "hardware/pio.h"
 
@@ -27,7 +28,8 @@ int main() {
     stepper_ctx step_ctx = stepper_get_ctx();
     stepper_init(&step_ctx, pio0, );
 
-    reboot_sequence();
+    struct rebootValues eepromRebootValues;  // Holds values read from EEPROM
+    reboot_sequence(&eepromRebootValues);
 
     state sm = a;
 
