@@ -27,7 +27,7 @@ target_link_libraries(stepper         pico_stdlib hardware_pio)
 target_link_libraries(lora            pico_stdlib hardware_uart)
 target_link_libraries(eeprom          pico_stdlib hardware_i2c)
 target_link_libraries(debounce        pico_stdlib)
-target_link_libraries(magnusFuncs     pico_stdlib)
+target_link_libraries(magnusFuncs     hardware_watchdog eeprom)
 
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
