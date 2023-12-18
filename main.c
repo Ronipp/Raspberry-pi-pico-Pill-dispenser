@@ -29,7 +29,8 @@ int main() {
     stepper_init(&step_ctx, pio0, );
 
     struct rebootValues eepromRebootValues;  // Holds values read from EEPROM
-    reboot_sequence(&eepromRebootValues);
+    struct rebootValues watchdogRebootValues; // Holds values read from watchdog
+    reboot_sequence(&eepromRebootValues, &watchdogRebootValues);
 
     state sm = a;
 
