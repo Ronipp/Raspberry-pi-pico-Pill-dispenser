@@ -1,5 +1,6 @@
 #ifndef EEPROM_H
 #define EEPROM_H
+#include <stdint>
 
 void eeprom_init_i2c(i2c_inst_t *i2c, uint baud, uint32_t write_cycle_max_ms);
 void eeprom_write_byte(uint16_t address, char c);
