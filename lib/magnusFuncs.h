@@ -7,4 +7,11 @@ int getChecksum(uint8_t *base8Array, int *arrayLen);
 bool verifyDataIntegrity(uint8_t *valuesRead);
 bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues *ptrToWatchdogStruct);
 
+typedef struct rebootValues
+{
+    uint8_t pillDispenseState;
+    uint8_t rebootStatusCode;
+    uint16_t prevCalibStepCount;
+} rebootValues;
+
 #endif
