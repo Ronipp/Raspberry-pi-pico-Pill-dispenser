@@ -24,9 +24,9 @@ typedef enum state {
 int main() {
     stdio_init_all();
     eeprom_init_i2c(i2c0, 9600, 5);
-    lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
+    //lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
     stepper_ctx step_ctx = stepper_get_ctx();
-    stepper_init(&step_ctx, pio0, );
+    //stepper_init(&step_ctx, pio0, );
 
     struct rebootValues eepromRebootValues;  // Holds values read from EEPROM
     struct rebootValues watchdogRebootValues; // Holds values read from watchdog

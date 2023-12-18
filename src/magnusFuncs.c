@@ -1,5 +1,5 @@
 
-#include "C:\Users\Mage\Documents\GitHub\embedded_project\lib\eeprom.h"
+#include "eeprom.h"
 #include "watchdog.h"
 #include "stdint.h"
 #include "stdbool.h"
