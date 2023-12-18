@@ -30,7 +30,7 @@ void eeprom_init_i2c(i2c_inst_t *i2c, uint baud, uint32_t write_cycle_max_ms) {
     gpio_set_function(scl_pin, GPIO_FUNC_I2C);
     gpio_set_dir(sda_pin, GPIO_OUT);
     gpio_set_dir(scl_pin, GPIO_OUT);
-    i2c_init(i2c0, baud);
+    i2c_init(i2c, baud);
     write_cycle_max = (uint64_t) write_cycle_max_ms * 1000;
     write_init_time = nil_time;
 }
