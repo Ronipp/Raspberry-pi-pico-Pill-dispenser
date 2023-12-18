@@ -45,3 +45,13 @@ int main() {
         printf("msg %s", buf);
     }
 }
+
+
+#include <stdio.h>
+
+int main()
+{
+    
+    
+    return 0;
+}
