@@ -12,12 +12,12 @@
 #define PREV_CALIB_STEP_COUNT_MSB 2
 #define PREV_CALIB_STEP_COUNT_LSB 3
 
-struct rebootValues
+typedef struct rebootValues
 {
     uint8_t pillDispenseState;
     uint8_t rebootStatusCode;
     uint16_t prevCalibStepCount;
-};
+} rebootValues;
 
 /**
  * Computes a 16-bit CRC for the given data.
