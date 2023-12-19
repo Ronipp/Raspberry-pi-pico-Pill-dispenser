@@ -13,6 +13,6 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int *arrayLen);
 bool verifyDataIntegrity(uint8_t *valuesRead);
 bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues *ptrToWatchdogStruct);
-void enterLogToEeprom(const int *array, const int arrayLen);
+void enterLogToEeprom(int *array, const int arrayLen);
 
 #endif
