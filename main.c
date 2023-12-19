@@ -14,28 +14,36 @@
 #define UART_TX_PIN
 #define UART_RX_PIN
 
-typedef enum state {
+typedef enum state
+{
     a,
     b,
     c,
 } state;
 
-
-int main() {
+int main()
+{
     stdio_init_all();
     eeprom_init_i2c(i2c0, 9600, 5);
-    //lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
+    // lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
     stepper_ctx step_ctx = stepper_get_ctx();
-    //stepper_init(&step_ctx, pio0, );
+    // stepper_init(&step_ctx, pio0, );
 
-    struct rebootValues eepromRebootValues;  // Holds values read from EEPROM
+    struct rebootValues eepromRebootValues;   // Holds values read from EEPROM
     struct rebootValues watchdogRebootValues; // Holds values read from watchdog
 
-    uint8_t arr[4] = { 64, 1, 1, 255 };
+    uint8_t arr[4] = {0, 1, 5, 255};
 
-    eeprom_write_page(0, arr, 4);
+    eeprom_write_page(64, arr, 4);
 
-    reboot_sequence(&eepromRebootValues, &watchdogRebootValues);
+    if (reboot_sequence(&eepromRebootValues, &watchdogRebootValues) == true)
+    {
+        printf("crc true\n");
+    }
+    else
+    {
+        printf("crc false\n");
+    }
 
     printf("Pill Dispense State: %d\n", eepromRebootValues.pillDispenseState);
     printf("Reboot Status Code: %d\n", eepromRebootValues.rebootStatusCode);
@@ -43,7 +51,8 @@ int main() {
 
     state sm = a;
 
-    while (1) {
+    while (1)
+    {
         switch (sm)
         {
         case a:
