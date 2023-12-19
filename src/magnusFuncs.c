@@ -155,5 +155,13 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
 }
 
 void enterLogToEeprom(const int *array, const int arrayLen){
+    array[arrayLen] = 0; // Null-terminate the array
+    uint16_t crc = crc16(array, arrayLen); // Calculate CRC for the array
     
+    // Append the CRC as two bytes to the array
+    array[arrayLen + 1] = crc >> 8; // MSB
+    array[arrayLen + 2] = crc & 0xFF; // LSB
+
+    // Write the array to EEPROM
+    eeprom_write_page(64, array, arrayLen + 3);
 }

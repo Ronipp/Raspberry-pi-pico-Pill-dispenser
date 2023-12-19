@@ -34,20 +34,19 @@ int main()
 
     uint8_t arr[4] = {0, 1, 5, 255};
 
-    eeprom_write_page(64, arr, 4);
+    enterLogToEeprom(arr, 4);
 
     if (reboot_sequence(&eepromRebootValues, &watchdogRebootValues) == true)
     {
         printf("crc true\n");
+        printf("Pill Dispense State: %d\n", eepromRebootValues.pillDispenseState);
+        printf("Reboot Status Code: %d\n", eepromRebootValues.rebootStatusCode);
+        printf("Previous Calibration Step Count: %d\n", eepromRebootValues.prevCalibStepCount);
     }
     else
     {
         printf("crc false\n");
     }
-
-    printf("Pill Dispense State: %d\n", eepromRebootValues.pillDispenseState);
-    printf("Reboot Status Code: %d\n", eepromRebootValues.rebootStatusCode);
-    printf("Previous Calibration Step Count: %d\n", eepromRebootValues.prevCalibStepCount);
 
     state sm = a;
 
