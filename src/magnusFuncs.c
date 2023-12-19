@@ -1,8 +1,9 @@
 
-#include "eeprom.h"
-#include "watchdog.h"
+#include "../lib/eeprom.h"
+#include "hardware/watchdog.h"
 #include "stdint.h"
 #include "stdbool.h"
+#include "../lib/magnusFuncs.h"
 
 #define EEPROM_ARR_LENGTH 64
 #define MIN_LOG_LEN 3
@@ -99,8 +100,9 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
  */
 bool verifyDataIntegrity(uint8_t *valuesRead)
 {
+    int arrlen = EEPROM_ARR_LENGTH;
     // Check if the checksum for the array matches the expected value (0 for OK)
-    if (getChecksum(valuesRead, EEPROM_ARR_LENGTH) == 0)
+    if (getChecksum(valuesRead, &arrlen) == 0)
     {
         return true; // Data integrity verified
     }

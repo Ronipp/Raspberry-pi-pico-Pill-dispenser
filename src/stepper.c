@@ -13,6 +13,7 @@
 #define _lessthan(x) (_arg(x) < 0)
 #define _ternary(x, y) (_lessthan(_remainder(x, y)) ? _arg(y) : 0)
 #define stepper_modulo(x, y) (_remainder(x, y) + _ternary(x, y))
+#define SYS_CLK_KHZ 125000 // this is defined in picosdk but this shit is broken and wont import it... asddas.sdgagk.... 
 
 static void stepper_pio_init(stepper_ctx *ctx, float div) {
     pio_sm_config conf = stepper_clockwise_program_get_default_config(ctx->program_offset);
