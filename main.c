@@ -31,7 +31,7 @@ int main() {
     struct rebootValues eepromRebootValues;  // Holds values read from EEPROM
     struct rebootValues watchdogRebootValues; // Holds values read from watchdog
 
-    uint8_t arr[4] = { 0, 1, 1, 255 };
+    uint8_t arr[4] = { 64, 1, 1, 255 };
 
     eeprom_write_page(0, arr, 4);
 
