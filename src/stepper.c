@@ -330,7 +330,13 @@ bool stepper_is_calibrating(const stepper_ctx *ctx) {
 }
 
 uint16_t stepper_get_max_steps(const stepper_ctx *ctx) {
-    return ctx->step_max;
+    if (ctx->stepper_calibrated) return ctx->step_max;
+    return 0;
+}
+
+uint16_t stepper_get_edge_steps(const stepper_ctx *ctx) {
+    if (ctx->stepper_calibrated) return ctx->edge_steps;
+    return 0;
 }
 
 int16_t stepper_get_step_count(const stepper_ctx *ctx) {
