@@ -34,6 +34,8 @@ uint16_t crc16(const uint8_t *data, size_t length)
         crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
     }
 
+    printf("crc: %d\n", crc);
+
     return crc;
 }
 
@@ -136,7 +138,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); //TODO: address is hardcoded, rework later.
 
     // Verify data integrity.
-    if (verifyDataIntegrity(valuesRead) == 0)
+    if (verifyDataIntegrity(valuesRead) == true)
     {
         // Extract and assign values from the array to the struct fields.
         ptrToEepromStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
