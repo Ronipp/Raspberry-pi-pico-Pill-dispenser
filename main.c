@@ -34,7 +34,7 @@ int main()
 
     uint8_t arr[4] = {0, 1, 5, 255};
 
-    enterLogToEeprom(arr, 4);
+    enterLogToEeprom(arr);
 
     if (reboot_sequence(&eepromRebootValues, &watchdogRebootValues) == true)
     {
