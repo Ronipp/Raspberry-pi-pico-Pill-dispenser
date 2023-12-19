@@ -127,7 +127,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
 
     // Read EEPROM values into the array.
-    eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH);
+    eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); //TODO: address is hardcoded, rework later.
 
     // Verify data integrity.
     if (verifyDataIntegrity(valuesRead) == 0)
