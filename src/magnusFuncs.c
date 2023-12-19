@@ -165,7 +165,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     return eepromReadSuccess;
 }
 
-void enterLogToEeprom(int *array, const int arrayLen){
+void enterLogToEeprom(uint8_t *array, const int arrayLen){
     array[arrayLen] = 0; // Null-terminate the array
     uint16_t crc = crc16(array, arrayLen); // Calculate CRC for the array
     
