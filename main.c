@@ -30,7 +30,16 @@ int main() {
 
     struct rebootValues eepromRebootValues;  // Holds values read from EEPROM
     struct rebootValues watchdogRebootValues; // Holds values read from watchdog
+
+    uint8_t arr[4] = { 0, 1, 1, 255 };
+
+    eeprom_write_page(0, arr, 4);
+
     reboot_sequence(&eepromRebootValues, &watchdogRebootValues);
+
+    printf("Pill Dispense State: %d\n", eepromRebootValues.pillDispenseState);
+    printf("Reboot Status Code: %d\n", eepromRebootValues.rebootStatusCode);
+    printf("Previous Calibration Step Count: %d\n", eepromRebootValues.prevCalibStepCount);
 
     state sm = a;
 

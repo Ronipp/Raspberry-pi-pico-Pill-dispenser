@@ -8,10 +8,12 @@
 #define EEPROM_ARR_LENGTH 64
 #define MIN_LOG_LEN 3
 #define MAX_LOG_LEN 61
+#define EEPROM_LOG_LEN 4
 #define PILL_DISPENSE_STATE 0
 #define REBOOT_STATUS_CODE 1
 #define PREV_CALIB_STEP_COUNT_MSB 2
 #define PREV_CALIB_STEP_COUNT_LSB 3
+
 
 /**
  * Computes a 16-bit CRC for the given data.
@@ -65,7 +67,10 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
  */
 int getChecksum(uint8_t *base8Array, int *arrayLen)
 {
-    int zeroIndex = 0;
+    int zeroIndex = EEPROM_LOG_LEN;
+
+    /*
+    // TODO: Remove this section once the modified code is verified.
 
     // Find the terminating zero
     for (int i = 0; i < *arrayLen; i++)
@@ -82,6 +87,7 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
     {
         return -1; // Array too long or too short to be valid
     }
+    */
 
     // Modify the array by removing the terminating zero and adjust the length
     base8Array[zeroIndex] = base8Array[zeroIndex + 1];
@@ -146,4 +152,8 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     ptrToWatchdogStruct->prevCalibStepCount = watchdog_hw->scratch[2];
 
     return eepromReadSuccess;
+}
+
+void enterLogToEeprom(const int *array, const int arrayLen){
+    
 }
