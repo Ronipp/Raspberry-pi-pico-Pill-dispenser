@@ -23,7 +23,8 @@ int main() {
     stepper_ctx *ctx = &step_ctx;
     stepper_init(ctx, pio0, stepperpins, STEPPER_OPTO_FORK_PIN, 10, STEPPER_CLOCKWISE);
 
-    stepper_calibrate(ctx);
+    
+    stepper_half_calibrate(ctx, 4095, 314);
 
     while (1) {
         sleep_ms(100);

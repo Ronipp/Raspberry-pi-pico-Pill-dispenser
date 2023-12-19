@@ -109,6 +109,10 @@ void stepper_turn_steps(stepper_ctx *ctx, const uint16_t steps) {
     ctx->step_memory = (ctx->step_memory << 16) | (uint16_t)steps_to_add;
 }
 
+void stepper_go_to_step(stepper_ctx *ctx, const uint16_t step) {
+    uint16_t steps = 
+}
+
 void stepper_turn_one_revolution(stepper_ctx *ctx) {
     stepper_turn_steps(ctx, ctx->step_max);
 }
@@ -292,19 +296,22 @@ void stepper_calibrate(stepper_ctx *ctx) {
     stepper_turn_steps(ctx, ctx->step_max);
 }
 
+static uint dispensed_pills;
 
 static void half_calibration_handler(void) {
     pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, false);
     gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL);
     stepper_stop(tmp_ctx);
+    tmp_ctx->step_counter = tmp_ctx->edge_steps / 2;
     
 }
 
-void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_steps) {
+void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_steps, uint pills_dispensed) {
     if (ctx->stepper_calibrating) return;
     ctx->step_max = max_steps;
     ctx->edge_steps = edge_steps;
     original_speed = ctx->speed;
+    dispensed_pills = pills_dispensed;
     ctx->stepper_calibrated = false;
     ctx->stepper_calibrating = true;
 
