@@ -16,6 +16,30 @@
 #define UART_RX_PIN 5
 #define STEPPER_OPTO_FORK_PIN 28
 
+#define CALIB_BUTTON 7
+#define DISPENSE_BUTTON 8
+
+static bool calib_btn_pressed = false;
+static bool dispense_btn_pressed = false;
+
+void button_handler(uint gpio, uint32_t mask) {
+    if (gpio == CALIB_BUTTON) {
+        if (mask & GPIO_IRQ_EDGE_FALL) {
+            calib_btn_pressed = true;
+        }
+        if (mask & GPIO_IRQ_EDGE_RISE) {
+            calib_btn_pressed = false;
+        }
+    } else {
+        if (mask & GPIO_IRQ_EDGE_FALL) {
+            dispense_btn_pressed = true;
+        }
+        if (mask & GPIO_IRQ_EDGE_RISE) {
+            dispense_btn_pressed = false;
+        }
+    }
+}
+
 
 int main()
 {
@@ -25,7 +49,10 @@ int main()
 
     uint stepperpins[4] = {BLUE, PINK, YELLOW, ORANGE};
     stepper_ctx step_ctx = stepper_get_ctx();
-    // stepper_init(&step_ctx, pio0, );
+    stepper_init(&step_ctx, pio0, stepperpins, STEPPER_OPTO_FORK_PIN, 10, STEPPER_CLOCKWISE);
+
+    //CALIBRATION AND DISPENSE BUTTON
+    init_button_with_callback(CALIB_BUTTON, 2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler);
 
 
 
@@ -54,7 +81,10 @@ int main()
     while (1) {
         switch (sm.state) {
         case CALIBRATE:
-            /* code */
+            if (calib_btn_pressed) {
+                stepper_calibrate(&step_ctx);
+                sm.state = DISPENSE;
+            } 
             break;
         case HALF_CALIBRATE:
             /* code */

@@ -245,29 +245,32 @@ static void calibration_handler(void) {
             pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, true);
         }
         return;
-    }
-    gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL);
-    if (stage == false) { // this should happen first
-        stepper_stop(tmp_ctx);
-        tmp_ctx->step_counter = 0; // we are at the edge of the "hole" so step counter gets set to 0.
-        stage = true;
-        stepper_turn_steps(tmp_ctx, tmp_ctx->step_max); // set the motor in motion again.
-    } else { // this is the last step in calibration
-        stepper_stop(tmp_ctx);
-        if (tmp_ctx->direction == STEPPER_CLOCKWISE) {
-            tmp_ctx->step_max = tmp_ctx->step_counter; // motor has made one whole turn so set the max steps equal to step counter
-            tmp_ctx->step_counter = tmp_ctx->step_max - (tmp_ctx->edge_steps / 2); // use the second edge to calculate where the "true" zero should be.
-        } else { // different math for different direction
-            tmp_ctx->step_max = tmp_ctx->step_max - tmp_ctx->step_counter;
-            tmp_ctx->step_counter = tmp_ctx->edge_steps / 2; 
-            
+    } else if (gpio_get_irq_event_mask(tmp_ctx->opto_fork_pin) & GPIO_IRQ_EDGE_FALL) {
+        gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL);
+        if (stage == false) { // this should happen first
+            stepper_stop(tmp_ctx);
+            tmp_ctx->step_counter = 0; // we are at the edge of the "hole" so step counter gets set to 0.
+            stage = true;
+            stepper_turn_steps(tmp_ctx, tmp_ctx->step_max); // set the motor in motion again.
+        } else { // this is the last step in calibration
+            stepper_stop(tmp_ctx);
+            if (tmp_ctx->direction == STEPPER_CLOCKWISE) {
+                tmp_ctx->step_max = tmp_ctx->step_counter; // motor has made one whole turn so set the max steps equal to step counter
+                tmp_ctx->step_counter = tmp_ctx->step_max - (tmp_ctx->edge_steps / 2); // use the second edge to calculate where the "true" zero should be.
+            } else { // different math for different direction
+                tmp_ctx->step_max = tmp_ctx->step_max - tmp_ctx->step_counter;
+                tmp_ctx->step_counter = tmp_ctx->edge_steps / 2; 
+                
+            }
+            stepper_set_speed(tmp_ctx, original_speed);
+            stepper_turn_steps(tmp_ctx, tmp_ctx->edge_steps / 2); // go to "true" zero
+            tmp_ctx->stepper_calibrated = true;
+            tmp_ctx->stepper_calibrating = false;
+            gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+            gpio_remove_raw_irq_handler(tmp_ctx->opto_fork_pin, calibration_handler);
         }
-        stepper_set_speed(tmp_ctx, original_speed);
-        stepper_turn_steps(tmp_ctx, tmp_ctx->edge_steps / 2); // go to "true" zero
-        tmp_ctx->stepper_calibrated = true;
-        tmp_ctx->stepper_calibrating = false;
-        gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-        gpio_remove_raw_irq_handler(tmp_ctx->opto_fork_pin, calibration_handler);
+    } else {
+        pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, true); // incase optofork didnt call this function
     }
 }
 
@@ -286,9 +289,9 @@ void stepper_calibrate(stepper_ctx *ctx) {
     ctx->stepper_calibrating = true;
     tmp_ctx = ctx; // setting the main program ctx to be used with callback.
     // set interrupts on opto fork pin.
+    gpio_add_raw_irq_handler_with_order_priority(ctx->opto_fork_pin, calibration_handler, PICO_HIGHEST_IRQ_PRIORITY);
     gpio_set_irq_enabled(ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-    irq_set_enabled(IO_IRQ_BANK0, true);
-    gpio_add_raw_irq_handler(ctx->opto_fork_pin, calibration_handler);
+    if (!irq_is_enabled(IO_IRQ_BANK0)) irq_set_enabled(IO_IRQ_BANK0, true);
     // set the stepper in motion and wait for interrupts
     stepper_set_speed(ctx, RPM_MAX);
     stepper_turn_steps(ctx, ctx->step_max);
@@ -335,7 +338,7 @@ void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_
 
     gpio_set_irq_enabled(ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
     irq_set_enabled(IO_IRQ_BANK0, true);
-    gpio_add_raw_irq_handler(ctx->opto_fork_pin, half_calibration_handler);
+    gpio_add_raw_irq_handler_with_order_priority(ctx->opto_fork_pin, half_calibration_handler, PICO_HIGHEST_IRQ_PRIORITY);
 
     stepper_set_direction(ctx, STEPPER_ANTICLOCKWISE);
     stepper_set_speed(ctx, RPM_MAX);
