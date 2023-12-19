@@ -34,8 +34,6 @@ uint16_t crc16(const uint8_t *data, size_t length)
         crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
     }
 
-    printf("crc: %d\n", crc);
-
     return crc;
 }
 
