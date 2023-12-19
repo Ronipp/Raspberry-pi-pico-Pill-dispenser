@@ -311,6 +311,8 @@ static void half_calibration_handler(void) {
             if (dispensed_pills != 0) {
                 stepper_turn_steps(tmp_ctx, (dispensed_pills * tmp_ctx->step_max / 8) - tmp_ctx->step_counter);
             }
+        tmp_ctx->stepper_calibrated = true;
+        tmp_ctx->stepper_calibrating = false;
         gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
         gpio_remove_raw_irq_handler(tmp_ctx->opto_fork_pin, half_calibration_handler);
         } else {
