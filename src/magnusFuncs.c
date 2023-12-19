@@ -68,7 +68,7 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
  *                    Updated if the terminating zero is found.
  * @return           The calculated checksum if array length is valid (0 = OK, else checksum fail), else returns -1 for errors.
  */
-int getChecksum(uint8_t *base8Array, int *arrayLen)
+int getChecksum(uint8_t *base8Array)
 {
     int zeroIndex = EEPROM_LOG_LEN;
 
@@ -95,10 +95,9 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
     // Modify the array by removing the terminating zero and adjust the length
     base8Array[zeroIndex] = base8Array[zeroIndex + 1];
     base8Array[zeroIndex + 1] = base8Array[zeroIndex + 2];
-    *arrayLen = zeroIndex + 2;
 
     printf("base8Array: ");
-    for (int i = 0; i <= *arrayLen; i++)
+    for (int i = 0; i <= zeroIndex + 2; i++)
     {
         printf("%d ", base8Array[i]);
     }
@@ -106,7 +105,7 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
     
 
     // Calculate and return the CRC as the checksum
-    return crc16(base8Array, *arrayLen);
+    return crc16(base8Array, zeroIndex + 2);
 }
 
 /**
@@ -165,7 +164,13 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     return eepromReadSuccess;
 }
 
-void enterLogToEeprom(uint8_t *array, const int arrayLen){
+/**
+ * Writes a log array to EEPROM after appending a CRC value at the end.
+ *
+ * @param array Pointer to the log array to be written to EEPROM.
+ */
+void enterLogToEeprom(uint8_t *array) {
+    int arrayLen = EEPROM_LOG_LEN;
     array[arrayLen] = 0; // Null-terminate the array
     uint16_t crc = crc16(array, arrayLen); // Calculate CRC for the array
     
@@ -174,13 +179,11 @@ void enterLogToEeprom(uint8_t *array, const int arrayLen){
     array[arrayLen + 2] = crc & 0xFF; // LSB
 
     printf("array: ");
-    for (int i = 0; i <= arrayLen + 3; i++)
-    {
-        printf("%d ", array[i]);
+    for (int i = 0; i <= arrayLen + 3; i++) {
+        printf("%d ", array[i]); // Print the content of the array (including CRC bytes)
     }
     printf("\n");
     
-
     // Write the array to EEPROM
     eeprom_write_page(64, array, arrayLen + 3);
 }
