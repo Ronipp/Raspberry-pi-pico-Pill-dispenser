@@ -98,7 +98,7 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
     *arrayLen = zeroIndex + 2;
 
     printf("base8Array: ");
-    for (int i = 0; i <= arrayLen; i++)
+    for (int i = 0; i <= *arrayLen; i++)
     {
         printf("%d ", base8Array[i]);
     }
