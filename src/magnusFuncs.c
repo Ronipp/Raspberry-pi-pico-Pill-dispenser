@@ -176,7 +176,7 @@ void enterLogToEeprom(uint8_t *array, const int arrayLen){
     printf("array: ");
     for (int i = 0; i <= arrayLen + 3; i++)
     {
-        printf("%d ", array[i])
+        printf("%d ", array[i]);
     }
     printf("\n");
     
