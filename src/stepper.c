@@ -51,6 +51,7 @@ stepper_ctx stepper_get_ctx(void) {
     ctx.sequence_counter = 0;
     ctx.step_counter = 0;
     ctx.step_max = 6000;
+    ctx.edge_steps = 0;
     ctx.step_memory = 0;
     ctx.stepper_calibrated = false;
     ctx.stepper_calibrating = false;
@@ -222,7 +223,6 @@ void stepper_set_direction(stepper_ctx *ctx, bool clockwise) {
 }
 
 
-static uint16_t second_edge_steps;
 static float original_speed;
 
 bool stage;
@@ -234,9 +234,9 @@ static void calibration_handler(void) {
         if (stage == true) { // this should happen second.
             stepper_stop(tmp_ctx);
             if (tmp_ctx->direction == STEPPER_CLOCKWISE) { // we are over the second edge of the "hole"
-                second_edge_steps = tmp_ctx->step_counter; // so we keep that for later
+                tmp_ctx->edge_steps = tmp_ctx->step_counter; // so we keep that for later
             } else { // the math is a bit different if the stepper is going anticlockwise
-                second_edge_steps = tmp_ctx->step_max - tmp_ctx->step_counter;
+                tmp_ctx->edge_steps = tmp_ctx->step_max - tmp_ctx->step_counter;
             }
             stepper_turn_steps(tmp_ctx, tmp_ctx->step_max);
         } else { // in case something weird happens just let the stepper run
@@ -254,14 +254,14 @@ static void calibration_handler(void) {
         stepper_stop(tmp_ctx);
         if (tmp_ctx->direction == STEPPER_CLOCKWISE) {
             tmp_ctx->step_max = tmp_ctx->step_counter; // motor has made one whole turn so set the max steps equal to step counter
-            tmp_ctx->step_counter = tmp_ctx->step_max - (second_edge_steps / 2); // use the second edge to calculate where the "true" zero should be.
+            tmp_ctx->step_counter = tmp_ctx->step_max - (tmp_ctx->edge_steps / 2); // use the second edge to calculate where the "true" zero should be.
         } else { // different math for different direction
             tmp_ctx->step_max = tmp_ctx->step_max - tmp_ctx->step_counter;
-            tmp_ctx->step_counter = second_edge_steps / 2; 
+            tmp_ctx->step_counter = tmp_ctx->edge_steps / 2; 
             
         }
         stepper_set_speed(tmp_ctx, original_speed);
-        stepper_turn_steps(tmp_ctx, second_edge_steps / 2); // go to "true" zero
+        stepper_turn_steps(tmp_ctx, tmp_ctx->edge_steps / 2); // go to "true" zero
         tmp_ctx->stepper_calibrated = true;
         tmp_ctx->stepper_calibrating = false;
         gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
@@ -292,7 +292,7 @@ void stepper_calibrate(stepper_ctx *ctx) {
     stepper_turn_steps(ctx, ctx->step_max);
 }
 
-static uint pills_num;
+
 static void half_calibration_handler(void) {
     pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, false);
     gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL);
@@ -300,11 +300,11 @@ static void half_calibration_handler(void) {
     
 }
 
-void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint pills_dispensed) {
+void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_steps) {
     if (ctx->stepper_calibrating) return;
     ctx->step_max = max_steps;
+    ctx->edge_steps = edge_steps;
     original_speed = ctx->speed;
-    pills_num = pills_dispensed;
     ctx->stepper_calibrated = false;
     ctx->stepper_calibrating = true;
 
@@ -314,7 +314,7 @@ void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint pills_dis
 
     stepper_set_direction(ctx, STEPPER_ANTICLOCKWISE);
     stepper_set_speed(ctx, RPM_MAX);
-    stepper_turn_steps(pills_dispensed * max_steps / 8);
+    stepper_turn_steps(ctx, max_steps);
 }
 
 bool stepper_is_running(const stepper_ctx *ctx) {
