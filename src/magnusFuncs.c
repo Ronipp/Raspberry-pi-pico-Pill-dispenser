@@ -1,6 +1,7 @@
 
 #include "../lib/eeprom.h"
 #include "hardware/watchdog.h"
+#include "stdio.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "../lib/magnusFuncs.h"
@@ -33,6 +34,8 @@ uint16_t crc16(const uint8_t *data, size_t length)
         x ^= x >> 4;
         crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
     }
+
+    printf("crc: %d\n", crc);
 
     return crc;
 }
@@ -93,6 +96,14 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
     base8Array[zeroIndex] = base8Array[zeroIndex + 1];
     base8Array[zeroIndex + 1] = base8Array[zeroIndex + 2];
     *arrayLen = zeroIndex + 2;
+
+    printf("base8Array: ");
+    for (int i = 0; i <= arrayLen; i++)
+    {
+        printf("%d ", base8Array[i]);
+    }
+    printf("\n");
+    
 
     // Calculate and return the CRC as the checksum
     return crc16(base8Array, *arrayLen);
@@ -161,6 +172,14 @@ void enterLogToEeprom(const int *array, const int arrayLen){
     // Append the CRC as two bytes to the array
     array[arrayLen + 1] = crc >> 8; // MSB
     array[arrayLen + 2] = crc & 0xFF; // LSB
+
+    printf("array: ");
+    for (int i = 0; i <= arrayLen + 3; i++)
+    {
+        printf("%d ", array[i])
+    }
+    printf("\n");
+    
 
     // Write the array to EEPROM
     eeprom_write_page(64, array, arrayLen + 3);
