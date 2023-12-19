@@ -109,9 +109,6 @@ void stepper_turn_steps(stepper_ctx *ctx, const uint16_t steps) {
     ctx->step_memory = (ctx->step_memory << 16) | (uint16_t)steps_to_add;
 }
 
-void stepper_go_to_step(stepper_ctx *ctx, const uint16_t step) {
-    uint16_t steps = 
-}
 
 void stepper_turn_one_revolution(stepper_ctx *ctx) {
     stepper_turn_steps(ctx, ctx->step_max);
@@ -300,9 +297,26 @@ static uint dispensed_pills;
 
 static void half_calibration_handler(void) {
     pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, false);
-    gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL);
-    stepper_stop(tmp_ctx);
-    tmp_ctx->step_counter = tmp_ctx->edge_steps / 2;
+    if (gpio_get_irq_event_mask(tmp_ctx->opto_fork_pin) & GPIO_IRQ_EDGE_FALL) {
+        gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL);
+        stepper_stop(tmp_ctx);
+        stage = true;
+        stepper_set_direction(tmp_ctx, STEPPER_CLOCKWISE);
+        stepper_turn_steps(tmp_ctx, tmp_ctx->step_max);
+    } else {
+        gpio_acknowledge_irq(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE);
+        if (stage == true) {
+            stepper_stop(tmp_ctx);
+            tmp_ctx->step_counter = tmp_ctx->edge_steps / 2;
+            if (dispensed_pills != 0) {
+                stepper_turn_steps(tmp_ctx, (dispensed_pills * tmp_ctx->step_max / 8) - tmp_ctx->step_counter);
+            }
+        gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+        gpio_remove_raw_irq_handler(tmp_ctx->opto_fork_pin, half_calibration_handler);
+        } else {
+            pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, true);
+        }
+    }
     
 }
 
@@ -312,10 +326,11 @@ void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_
     ctx->edge_steps = edge_steps;
     original_speed = ctx->speed;
     dispensed_pills = pills_dispensed;
+    stage = false;
     ctx->stepper_calibrated = false;
     ctx->stepper_calibrating = true;
 
-    gpio_set_irq_enabled(ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
     irq_set_enabled(IO_IRQ_BANK0, true);
     gpio_add_raw_irq_handler(ctx->opto_fork_pin, half_calibration_handler);
 
@@ -337,13 +352,11 @@ bool stepper_is_calibrating(const stepper_ctx *ctx) {
 }
 
 uint16_t stepper_get_max_steps(const stepper_ctx *ctx) {
-    if (ctx->stepper_calibrated) return ctx->step_max;
-    return 0;
+    return ctx->step_max;
 }
 
 uint16_t stepper_get_edge_steps(const stepper_ctx *ctx) {
-    if (ctx->stepper_calibrated) return ctx->edge_steps;
-    return 0;
+    return ctx->edge_steps;
 }
 
 int16_t stepper_get_step_count(const stepper_ctx *ctx) {
