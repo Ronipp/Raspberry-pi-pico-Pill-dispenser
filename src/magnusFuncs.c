@@ -118,7 +118,7 @@ bool verifyDataIntegrity(uint8_t *valuesRead)
 {
     int arrlen = EEPROM_ARR_LENGTH;
     // Check if the checksum for the array matches the expected value (0 for OK)
-    if (getChecksum(valuesRead, &arrlen) == 0)
+    if (getChecksum(valuesRead) == 0)
     {
         return true; // Data integrity verified
     }
