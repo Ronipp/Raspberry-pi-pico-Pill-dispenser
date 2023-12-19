@@ -8,6 +8,7 @@
 #include "lora.h"
 #include "eeprom.h"
 #include "magnusFuncs.h"
+#include "statemachine.h"
 
 #include "hardware/pio.h"
 
@@ -15,12 +16,6 @@
 #define UART_RX_PIN 5
 #define STEPPER_OPTO_FORK_PIN 28
 
-typedef enum state
-{
-    a,
-    b,
-    c,
-} state;
 
 int main()
 {
@@ -31,6 +26,8 @@ int main()
     uint stepperpins[4] = {BLUE, PINK, YELLOW, ORANGE};
     stepper_ctx step_ctx = stepper_get_ctx();
     // stepper_init(&step_ctx, pio0, );
+
+
 
     struct rebootValues eepromRebootValues;   // Holds values read from EEPROM
     struct rebootValues watchdogRebootValues; // Holds values read from watchdog
@@ -51,14 +48,25 @@ int main()
         printf("crc false\n");
     }
 
-    state sm = a;
+    // STATE MACHINE
+    state_machine sm = statemachine_get(eepromRebootValues.pillDispenseState);
 
-    while (1)
-    {
-        switch (sm)
-        {
-        case a:
+    while (1) {
+        switch (sm.state) {
+        case CALIBRATE:
+            /* code */
             break;
-        }
+        case HALF_CALIBRATE:
+            /* code */
+            break;
+        case DISPENSE:
+            /* code */
+            break;
+        case CHECK_IF_DISPENSED:
+            /* code */
+            break;
+        default:
+            break;
+        } 
     }
 }
