@@ -214,7 +214,7 @@ void zeroAllLogs()
 
     while (count <= MAX_LOGS)
     {
-        eeorom_write_byte(logAddr, 0);
+        eeporom_write_byte(logAddr, 0);
         logAddr += LOG_SIZE;
         count++;
     }
