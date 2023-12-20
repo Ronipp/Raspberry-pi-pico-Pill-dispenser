@@ -4,6 +4,7 @@
 #include "stdio.h"
 #include "stdint.h"
 #include "stdbool.h"
+#include "string.h"
 #include "../lib/magnusFuncs.h"
 
 #define EEPROM_ARR_LENGTH 64
