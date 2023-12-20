@@ -85,6 +85,7 @@ int main()
         }
         printf("\n");
 
+        timestampSec = 0;
         timestampSec |= logArray[2] << 24;
         timestampSec |= logArray[3] << 16;
         timestampSec |= logArray[4] << 8;
