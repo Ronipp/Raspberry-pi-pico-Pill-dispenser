@@ -85,10 +85,10 @@ int main()
         }
         printf("\n");
 
-        timestampSec |= (uint32_t)logArray[2] << 24;
-        timestampSec |= (uint32_t)logArray[3] << 16;
-        timestampSec |= (uint32_t)logArray[4] << 8;
-        timestampSec |= (uint32_t)logArray[5];
+        timestampSec |= logArray[2] << 24;
+        timestampSec |= logArray[3] << 16;
+        timestampSec |= logArray[4] << 8;
+        timestampSec |= logArray[5];
 
         printf("Log %d: %s, Timestamp %d\n", i, rebootStatusCodes[logArray[1]], timestampSec);
         logAddr += EEPROM_ARR_LENGTH;
