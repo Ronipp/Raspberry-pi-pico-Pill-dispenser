@@ -32,11 +32,6 @@ int main()
     eeprom_init_i2c(i2c0, 1000000, 5);
     // lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
 
-    uint stepperpins[4] = {BLUE, PINK, YELLOW, ORANGE};
-    stepper_ctx step_ctx = stepper_get_ctx();
-    stepper_init(&step_ctx, pio0, stepperpins, STEPPER_OPTO_FORK_PIN, 10, STEPPER_CLOCKWISE);
-
-
 
     uint64_t startTime = time_us_64(); // Initialize start time.
     uint64_t actionTime;
