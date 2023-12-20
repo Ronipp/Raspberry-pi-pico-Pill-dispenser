@@ -57,7 +57,7 @@ int main()
         randomNum = rand() % 5;
         actionTime = time_us_64();
         printf("Action Time: %lld\n", actionTime);
-        timestampSec = ((uint32_t)(actionTime - startTime) / 1000000);
+        timestampSec = (uint32_t)((actionTime - startTime) / 1000000);
         printf("Timestamp: %lld\n", timestampSec);
 
         printf("Log %d: %s, Timestamp: %lld\n", i, rebootStatusCodes[randomNum], timestampSec);
