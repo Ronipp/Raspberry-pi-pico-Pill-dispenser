@@ -106,15 +106,6 @@ int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminati
     base8Array[zeroIndex] = base8Array[zeroIndex + 1];
     base8Array[zeroIndex + 1] = base8Array[zeroIndex + 2];
 
-    /*
-    printf("base8Array: ");
-    for (int i = 0; i <= zeroIndex + 2; i++)
-    {
-        printf("%d ", base8Array[i]);
-    }
-    printf("\n");
-    */
-
     // Calculate and return the CRC as the checksum
     return crc16(base8Array, zeroIndex + 2);
 }
@@ -152,10 +143,8 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     bool eepromReadSuccess = false;
 
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
-
     // Read EEPROM values into the array.
     eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
-
     // Verify data integrity.
     int len = EEPROM_ARR_LENGTH;
     if (verifyDataIntegrity(valuesRead, &len, true) == true)
@@ -167,7 +156,6 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
         ptrToEepromStruct->prevCalibStepCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
         eepromReadSuccess = true;                                                                     // Data integrity verified
     }
-
     // Read watchdog values into the struct from the scratch register.
     ptrToWatchdogStruct->pillDispenseState = watchdog_hw->scratch[0];
     ptrToWatchdogStruct->rebootStatusCode = watchdog_hw->scratch[1];
@@ -188,25 +176,12 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     uint8_t crcAppendedArray[EEPROM_ARR_LENGTH];
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
-
-    /*
-    printf("array: ");
-    for (int i = 0; i <= *arrayLen; i++)
-    {
-        printf("%d ", crcAppendedArray[i]);
-    }
-    printf("\n");
-
-    printf("arrayLen: %d\n", *arrayLen);;
-    */
-
     // Write the array to EEPROM
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
 }
 
 void zeroAllLogs()
 {
-    //printf("Clearing all logs\n");
     int count = 0;
     uint16_t logAddr = 0;
 
@@ -216,7 +191,6 @@ void zeroAllLogs()
         logAddr += LOG_SIZE;
         count++;
     }
-    //printf("Logs cleared\n");
 }
 
 // Fills a log array from the given message code and timestamp.

@@ -25,7 +25,7 @@
 #define BUTTON2 8
 
 
-char *rebootStatusCodes[20] = {
+char rebootStatusCodes[20] = {
     "Boot",
     "Button press",
     "Watchdog reset",
