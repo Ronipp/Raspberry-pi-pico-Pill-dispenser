@@ -60,7 +60,7 @@ int main()
         timestampSec = (uint32_t)((actionTime - startTime) / 1000000);
         printf("Timestamp: %lld\n", timestampSec);
 
-        printf("Log %d: %s, Timestamp: %lld\n", i, rebootStatusCodes[randomNum], timestampSec);
+        printf("Log %d: %s, Timestamp: %d\n", i, rebootStatusCodes[randomNum], timestampSec);
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
 
         enterLogToEeprom(logArray, &arrayLen, logAddr);
@@ -79,7 +79,7 @@ int main()
         timestampSec |= (uint32_t)logArray[4] << 8;
         timestampSec |= (uint32_t)logArray[5];
 
-        printf("Log %d: %s, Timestamp %lld\n", i, rebootStatusCodes[logArray[1]], timestampSec);
+        printf("Log %d: %s, Timestamp %d\n", i, rebootStatusCodes[logArray[1]], timestampSec);
         logAddr += EEPROM_ARR_LENGTH;
     }
 }
