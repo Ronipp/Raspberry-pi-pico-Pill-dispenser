@@ -25,4 +25,8 @@ state_machine statemachine_get(uint pills_dispensed) {
     return sm;
 }
 
+void state_machine_update_time(state_machine *sm) {
+    sm->time_ms = to_ms_since_boot(get_absolute_time());
+}
+
 #endif
