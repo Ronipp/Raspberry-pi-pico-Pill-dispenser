@@ -186,6 +186,7 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
+    /*
     printf("array: ");
     for (int i = 0; i <= *arrayLen; i++)
     {
@@ -194,6 +195,7 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     printf("\n");
 
     printf("arrayLen: %d\n", *arrayLen);;
+    */
 
     // Write the array to EEPROM
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
@@ -201,7 +203,7 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 
 void zeroAllLogs()
 {
-    printf("Clearing all logs\n");
+    //printf("Clearing all logs\n");
     int count = 0;
     uint16_t logAddr = 0;
 
@@ -211,7 +213,7 @@ void zeroAllLogs()
         logAddr += LOG_SIZE;
         count++;
     }
-    printf("Logs cleared\n");
+    //printf("Logs cleared\n");
 }
 
 // Fills a log array from the given message code and timestamp.
