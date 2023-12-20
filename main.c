@@ -54,6 +54,7 @@ int main()
     for (int i = 0; i < 20; i++)
     {
         randomNum = rand() % 5;
+        actionTime = time_us_64();
         timestampSec = ((uint32_t)(actionTime - startTime) / 1000000);
         printf("Timestamp: %lld\n", timestampSec);
 
