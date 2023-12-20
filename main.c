@@ -57,7 +57,7 @@ int main()
     logAddr = LOG_START_ADDR;
     for (int i = 0; i < 20; i++)
     {
-        readLogFromEeprom(logArray, &arrayLen, logAddr);
+        eeprom_read_page(logAddr, logArray, EEPROM_ARR_LENGTH);
 
         timestampSec |= (uint32_t)logArray[2] << 24;
         timestampSec |= (uint32_t)logArray[3] << 16;
