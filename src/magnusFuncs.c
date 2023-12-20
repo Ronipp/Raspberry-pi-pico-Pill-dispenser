@@ -198,7 +198,7 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     }
     printf("\n");
 
-    printf("arrayLen: %d\n", *arrayLen)
+    printf("arrayLen: %d\n", *arrayLen);
 
     // Write the array to EEPROM
     // eeprom_write_page(64, array, arrayLen + 3);

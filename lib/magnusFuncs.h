@@ -17,7 +17,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
 void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
 void zeroAllLogs();
 void convertStringToBase8(const char *string, const int stringLen, uint8_t *base8String);
-void createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
-void createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount);
+int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
+int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount);
 
 #endif
