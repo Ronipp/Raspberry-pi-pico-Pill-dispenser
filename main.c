@@ -60,6 +60,13 @@ int main()
         printf("Log %d: %s, Timestamp: %d\n", i, rebootStatusCodes[randomNum], timestampSec);
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
 
+        printf("array: ");
+        for (int i = 0; i < 6; i++)
+        {
+            printf("%d ", logArray[i]);
+        }
+        printf("\n");
+
         enterLogToEeprom(logArray, &arrayLen, logAddr);
         logAddr += EEPROM_ARR_LENGTH;
         sleep_ms(1000);
@@ -71,14 +78,12 @@ int main()
     {
         eeprom_read_page(logAddr, logArray, EEPROM_ARR_LENGTH);
 
-        /*
         printf("array: ");
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 6; i++)
         {
             printf("%d ", logArray[i]);
         }
         printf("\n");
-        */
 
         timestampSec |= (uint32_t)logArray[2] << 24;
         timestampSec |= (uint32_t)logArray[3] << 16;
