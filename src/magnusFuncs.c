@@ -22,13 +22,6 @@
 #define LOG_SIZE 64
 #define MAX_LOGS 32
 
-char *rebootStatusCodes[20] = {
-    "Boot",
-    "Button press",
-    "Watchdog reset",
-    "Kremlins in the code",
-    "Blood for the blood god, skulls for the skull throne."};
-
 /**
  * Computes a 16-bit CRC for the given data.
  *
