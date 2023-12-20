@@ -36,9 +36,6 @@ int main()
     stepper_ctx step_ctx = stepper_get_ctx();
     stepper_init(&step_ctx, pio0, stepperpins, STEPPER_OPTO_FORK_PIN, 10, STEPPER_CLOCKWISE);
 
-    //CALIBRATION AND DISPENSE BUTTON
-    init_button_with_callback(CALIB_BUTTON, 2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler);
-
 
 
     uint64_t startTime = time_us_64(); // Initialize start time.
