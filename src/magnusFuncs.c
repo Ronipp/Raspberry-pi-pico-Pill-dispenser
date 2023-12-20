@@ -22,6 +22,9 @@
 #define LOG_SIZE 64
 #define MAX_LOGS 32
 
+
+// TODO: UPDATE FUNCTION COMMENTS!!!!!!!!!!!!!!!!!!!!
+
 /**
  * Computes a 16-bit CRC for the given data.
  *
