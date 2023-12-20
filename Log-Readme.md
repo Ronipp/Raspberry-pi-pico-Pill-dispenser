@@ -1,4 +1,35 @@
 # Eeprom log array data layout
+#### Byte 0: `logStatus`
+
+-   **Purpose**: Indicates if the log is free or not.
+-   **Value Range**: 0 or 1, 0 means the log is free to use, 1 means it's in use.
+
+#### Byte 1: `messageCode`
+
+-   **Purpose**: Indicates the circumstances of the device reboot.
+-   **Value**: 0 to 255
+    -   `0`: Boot
+    -   `1`: Button Press
+    -   `2`: TBD
+
+#### Byte 2 to 5: `timestamp`
+
+-   **Purpose**: Holds the value for a 32bit timestamp value.
+-   **Value**: A 32-bit unsigned integer value split into four bytes:
+    -   **Byte 2 (MSB)**: Most Significant Byte (Higher bits)
+    -   **Byte 5 (LSB)**: Least Significant Byte (Lower bits)
+    
+    
+| Byte Index | Information       | Value Range                      |
+|------------|-------------------|----------------------------------|
+| 0          | logStatus         | 0 or 1                           |
+| 1          | messageCode       | valuecode for log message       |
+| 2          | prevCalibStepCount| MSB of timestamp                |
+| 5          | prevCalibStepCount| LSB of timestamp                |
+| 6 - 61     | Undefined         |                                  |
+| Final 3    | Reserved CRC      |                                  |
+
+# Pill dispenser status eeprom array.
 #### Byte 0: `pillDispenseState`
 
 -   **Purpose**: Indicates the current state of pill dispensing.
@@ -26,4 +57,4 @@
 | 2          | prevCalibStepCount| MSB of a uint16_t (16-bit value) |
 | 3          | prevCalibStepCount| LSB of a uint16_t (16-bit value) |
 | 4 - 61     | Undefined         |                                  |
-| Final 3    | Reserved CRC      |                                  |
+| Final 3    | Reserved CRC      |    
