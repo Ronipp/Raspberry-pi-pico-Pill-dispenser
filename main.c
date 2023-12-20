@@ -74,6 +74,14 @@ int main()
     {
         eeprom_read_page(logAddr, logArray, EEPROM_ARR_LENGTH);
 
+        printf("array: ");
+        for (int i = 0; i < 10; i++)
+        {
+            printf("%d ", logArray[i]);
+        }
+        printf("\n");
+        
+
         timestampSec |= (uint32_t)logArray[2] << 24;
         timestampSec |= (uint32_t)logArray[3] << 16;
         timestampSec |= (uint32_t)logArray[4] << 8;
