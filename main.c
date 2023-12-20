@@ -29,33 +29,38 @@ int main()
     stepper_ctx step_ctx = stepper_get_ctx();
     // stepper_init(&step_ctx, pio0, );
 
-    struct rebootValues eepromRebootValues;   // Holds values read from EEPROM
-    struct rebootValues watchdogRebootValues; // Holds values read from watchdog
+    int randomNum;
+    srand((unsigned int)time(NULL));
+    uint8_t logArray[EEPROM_ARR_LENGTH];
+    int arrayLen = 0;
+    int logAddr = LOG_START_ADDR;
+    uint32_t timestampSec = 0;
 
-    uint8_t arr[4] = {0, 1, 5, 255};
 
-    enterLogToEeprom(arr);
-
-    if (reboot_sequence(&eepromRebootValues, &watchdogRebootValues) == true)
+    printf("Creating Logs:\n");
+    for (int i = 0; i < 20; i++)
     {
-        printf("crc true\n");
-        printf("Pill Dispense State: %d\n", eepromRebootValues.pillDispenseState);
-        printf("Reboot Status Code: %d\n", eepromRebootValues.rebootStatusCode);
-        printf("Previous Calibration Step Count: %d\n", eepromRebootValues.prevCalibStepCount);
+        randomNum = rand() % 5;
+        timestampSec = (to_ms_since_boot(get_absolute_time()) / 1000)
+
+        printf("Log %d: %s, Timestamp: %lld\n", i, rebootStatusCodes[randomNum], timestampSec);
+        arrayLen = createLogArray(logArray, randomNum, timestampSec);
+        enterLogToEeprom(logArray, arrayLen, logAddr);
+        logAddr += EEPROM_ARR_LENGTH;
     }
-    else
-    {
-        printf("crc false\n");
-    }
 
-    state sm = a;
-
-    while (1)
+    printf("\n\nReading Logs:\n");
+    logAddr = LOG_START_ADDR;
+    for (int i = 0; i < 20; i++)
     {
-        switch (sm)
-        {
-        case a:
-            break;
-        }
+        readLogFromEeprom(logArray, &arrayLen, logAddr);
+
+        timestampSec |= (uint32_t)logArray[2] << 24;
+        timestampSec |= (uint32_t)logArray[3] << 16;
+        timestampSec |= (uint32_t)logArray[4] << 8;
+        timestampSec |= (uint32_t)logArray[5];
+
+        printf("Log %d: %s, Timestamp %lld\n", i, rebootStatusCodes[logArray[1]], );
+        logAddr += EEPROM_ARR_LENGTH;
     }
 }
