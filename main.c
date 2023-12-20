@@ -40,6 +40,9 @@ int main()
     stepper_ctx step_ctx = stepper_get_ctx();
     // stepper_init(&step_ctx, pio0, );
 
+    uint64_t startTime = time_us_64(); // Initialize start time.
+    uint64_t actionTime;
+
     int randomNum;
     srand((unsigned int)time(NULL));
     uint8_t logArray[EEPROM_ARR_LENGTH];
@@ -51,12 +54,12 @@ int main()
     for (int i = 0; i < 20; i++)
     {
         randomNum = rand() % 5;
-        timestampSec = (to_ms_since_boot(get_absolute_time()) / 1000);
+        timestampSec = ((uint32_t)(actionTime - startTime) / 1000000);
         printf("Timestamp: %lld\n", timestampSec);
 
         printf("Log %d: %s, Timestamp: %lld\n", i, rebootStatusCodes[randomNum], timestampSec);
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
-        
+
         enterLogToEeprom(logArray, &arrayLen, logAddr);
         logAddr += EEPROM_ARR_LENGTH;
         sleep_ms(1000);
