@@ -16,6 +16,7 @@
 #define UART_TX_PIN
 #define UART_RX_PIN
 #define EEPROM_ARR_LENGTH 64
+#define LOG_START_ADDR 0
 
 typedef enum state
 {
