@@ -7,7 +7,7 @@
 #include "stepper.h"
 #include "lora.h"
 #include "eeprom.h"
-#include "magnusFuncs.h"
+#include "logHandling.h"
 #include <time.h>
 #include "stdlib.h"
 
