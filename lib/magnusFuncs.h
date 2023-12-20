@@ -8,13 +8,6 @@ typedef struct rebootValues
     uint16_t prevCalibStepCount;
 } rebootValues;
 
-char *rebootStatusCodes[20] = {
-    "Boot",
-    "Button press",
-    "Watchdog reset",
-    "Kremlins in the code",
-    "Blood for the blood god, skulls for the skull throne."};
-
 uint16_t crc16(const uint8_t *data, size_t length);
 void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminatingZero);

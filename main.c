@@ -25,6 +25,15 @@ typedef enum state
     c,
 } state;
 
+
+char *rebootStatusCodes[20] = {
+    "Boot",
+    "Button press",
+    "Watchdog reset",
+    "Kremlins in the code",
+    "Blood for the blood god, skulls for the skull throne."};
+
+
 int main()
 {
     stdio_init_all();
