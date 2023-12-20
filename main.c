@@ -60,6 +60,7 @@ int main()
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
         enterLogToEeprom(logArray, &arrayLen, logAddr);
         logAddr += EEPROM_ARR_LENGTH;
+        sleep_ms(1000);
     }
 
     printf("\n\nReading Logs:\n");
