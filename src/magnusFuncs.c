@@ -196,7 +196,7 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     printf("arrayLen: %d\n", *arrayLen);;
 
     // Write the array to EEPROM
-    // eeprom_write_page(64, array, arrayLen + 3);
+    eeprom_write_page(64, array, arrayLen + 3);
 }
 
 void zeroAllLogs()
@@ -215,17 +215,17 @@ void zeroAllLogs()
 }
 
 // Fills a log array from the given message code and timestamp.
-// Array must have a minimum len of 9.
+// Array must have a minimum len of 8.
 // returns the length of the array
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
 {
     array[0] = 1; // log in use.
     array[1] = messageCode;
-    array[6] = (uint8_t)(timestamp & 0xFF); // LSB
-    array[5] = (uint8_t)((timestamp >> 8) & 0xFF);
-    array[4] = (uint8_t)((timestamp >> 16) & 0xFF);
-    array[3] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB
-    return 7;
+    array[5] = (uint8_t)(timestamp & 0xFF); // LSB
+    array[4] = (uint8_t)((timestamp >> 8) & 0xFF);
+    array[3] = (uint8_t)((timestamp >> 16) & 0xFF);
+    array[2] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB
+    return 6;
 }
 
 // Fills a pill dispenser status log array from the given pill dispenser state, reboot status code, and previous calibration step count.

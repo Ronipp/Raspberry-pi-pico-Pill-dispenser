@@ -41,7 +41,6 @@ int main()
     // stepper_init(&step_ctx, pio0, );
 
     uint64_t startTime = time_us_64(); // Initialize start time.
-    printf("Start Time: %lld\n", startTime);
     uint64_t actionTime;
 
     int randomNum;
@@ -56,9 +55,7 @@ int main()
     {
         randomNum = rand() % 5;
         actionTime = time_us_64();
-        printf("Action Time: %lld\n", actionTime);
         timestampSec = (uint32_t)((actionTime - startTime) / 1000000);
-        printf("Timestamp: %lld\n", timestampSec);
 
         printf("Log %d: %s, Timestamp: %d\n", i, rebootStatusCodes[randomNum], timestampSec);
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
