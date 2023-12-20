@@ -8,7 +8,6 @@
 #include "lora.h"
 #include "eeprom.h"
 #include "logHandling.h"
-#include "magnusFuncs.h"
 #include "statemachine.h"
 #include "led.h"
 #include <time.h>
