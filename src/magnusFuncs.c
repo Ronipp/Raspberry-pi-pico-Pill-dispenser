@@ -10,7 +10,7 @@
 #define MIN_LOG_LEN 3
 #define MAX_LOG_LEN 61
 
-#define EEPROM_STATE_LEN 8
+#define EEPROM_STATE_LEN 4
 #define PILL_DISPENSE_STATE 0
 #define REBOOT_STATUS_CODE 1
 #define PREV_CALIB_STEP_COUNT_MSB 2
@@ -160,7 +160,7 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
 
     // Verify data integrity.
-    if (verifyDataIntegrity(valuesRead) == true)
+    if (verifyDataIntegrity(valuesRead, EEPROM_STATE_LEN, true) == true)
     {
         // Extract and assign values from the array to the struct fields.
         ptrToEepromStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
