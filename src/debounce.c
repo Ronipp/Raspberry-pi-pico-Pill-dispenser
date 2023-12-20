@@ -7,7 +7,7 @@
 #define IRQ_MASK_MAX 8
 
 static uint32_t time = 0;
-static uint32_t delay = 50;
+static uint32_t delay = 20;
 static gpio_irq_callback_t callbackptr = NULL;
 
 bool debounce(uint32_t *time) {

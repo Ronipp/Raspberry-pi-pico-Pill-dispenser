@@ -23,10 +23,12 @@ typedef struct stepper_ctx{
     int16_t step_counter;
     uint64_t step_memory; // magic buffer... :D
     uint16_t step_max;
+    uint16_t edge_steps;
     bool direction;
     float speed;
     bool stepper_calibrated;
     bool stepper_calibrating;
+    bool running;
     PIO pio_instance;
     uint state_machine;
     uint program_offset;
@@ -41,12 +43,14 @@ void stepper_set_speed(stepper_ctx *ctx, float rpm);
 void stepper_stop(stepper_ctx *ctx);
 void stepper_set_direction(stepper_ctx *ctx, bool clockwise);
 void stepper_calibrate(stepper_ctx *ctx);
+void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_steps, uint pills_dispensed);
 
-bool stepper_is_stopped(const stepper_ctx *ctx);
+bool stepper_is_running(const stepper_ctx *ctx);
 bool stepper_is_calibrated(const stepper_ctx *ctx);
 bool stepper_is_calibrating(const stepper_ctx *ctx);
 uint16_t stepper_get_max_steps(const stepper_ctx *ctx);
 int16_t stepper_get_step_count(const stepper_ctx *ctx);
 bool stepper_get_direction(const stepper_ctx *ctx);
+uint16_t stepper_get_edge_steps(const stepper_ctx *ctx);
 
 #endif

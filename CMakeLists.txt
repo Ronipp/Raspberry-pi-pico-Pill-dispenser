@@ -12,11 +12,11 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/lib)
 
 
 add_executable(${PROJECT_NAME} main.c)
-add_library(debounce ${source_location}/debounce.c)
-add_library(stepper  ${source_location}/stepper.c)
-add_library(lora     ${source_location}/lora.c)
-add_library(eeprom   ${source_location}/eeprom.c)
-add_library(magnusFuncs ${source_location}/magnusFuncs.c)
+add_library(debounce     ${source_location}/debounce.c)
+add_library(lora         ${source_location}/lora.c)
+add_library(stepper      ${source_location}/stepper.c)
+add_library(eeprom       ${source_location}/eeprom.c)
+add_library(magnusFuncs  ${source_location}/magnusFuncs.c)
 
 pico_generate_pio_header(stepper ${CMAKE_CURRENT_LIST_DIR}/stepper.pio)
 
