@@ -25,14 +25,12 @@ typedef enum state
     c,
 } state;
 
-
 char *rebootStatusCodes[20] = {
     "Boot",
     "Button press",
     "Watchdog reset",
     "Kremlins in the code",
     "Blood for the blood god, skulls for the skull throne."};
-
 
 int main()
 {
@@ -49,15 +47,16 @@ int main()
     int logAddr = LOG_START_ADDR;
     uint32_t timestampSec = 0;
 
-
     printf("Creating Logs:\n");
     for (int i = 0; i < 20; i++)
     {
         randomNum = rand() % 5;
         timestampSec = (to_ms_since_boot(get_absolute_time()) / 1000);
+        printf("Timestamp: %lld\n", timestampSec);
 
         printf("Log %d: %s, Timestamp: %lld\n", i, rebootStatusCodes[randomNum], timestampSec);
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
+        
         enterLogToEeprom(logArray, &arrayLen, logAddr);
         logAddr += EEPROM_ARR_LENGTH;
         sleep_ms(1000);
