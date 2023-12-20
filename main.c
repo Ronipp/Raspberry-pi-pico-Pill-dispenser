@@ -8,6 +8,8 @@
 #include "lora.h"
 #include "eeprom.h"
 #include "magnusFuncs.h"
+#include <time.h>
+#include "stdlib.h"
 
 #include "hardware/pio.h"
 
