@@ -1,5 +1,5 @@
-#ifndef magnusFuncs_h
-#define magnusFuncs_h
+#ifndef logHandling_h
+#define logHandling_h
 
 typedef struct rebootValues
 {

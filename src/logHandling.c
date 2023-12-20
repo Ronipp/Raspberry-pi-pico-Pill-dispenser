@@ -5,7 +5,7 @@
 #include "stdint.h"
 #include "stdbool.h"
 #include "string.h"
-#include "../lib/magnusFuncs.h"
+#include "../lib/logHandling.h"
 
 #define EEPROM_ARR_LENGTH 64
 #define MIN_LOG_LEN 3
