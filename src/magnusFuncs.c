@@ -160,7 +160,8 @@ bool reboot_sequence(struct rebootValues *ptrToEepromStruct, struct rebootValues
     eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
 
     // Verify data integrity.
-    if (verifyDataIntegrity(valuesRead, EEPROM_STATE_LEN, true) == true)
+    int len = EEPROM_ARR_LENGTH;
+    if (verifyDataIntegrity(valuesRead, &len, true) == true)
     {
         // Extract and assign values from the array to the struct fields.
         ptrToEepromStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
@@ -198,7 +199,7 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     }
     printf("\n");
 
-    printf("arrayLen: %d\n", *arrayLen);
+    printf("arrayLen: %d\n", *arrayLen);;
 
     // Write the array to EEPROM
     // eeprom_write_page(64, array, arrayLen + 3);
