@@ -228,10 +228,10 @@ int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
 {
     array[0] = 1; // log in use.
     array[1] = messageCode;
-    array[6] = (uint8_t)(value & 0xFF); // LSB
-    array[5] = (uint8_t)((value >> 8) & 0xFF);
-    array[4] = (uint8_t)((value >> 16) & 0xFF);
-    array[3] = (uint8_t)((value >> 24) & 0xFF); // MSB
+    array[6] = (uint8_t)(timestamp & 0xFF); // LSB
+    array[5] = (uint8_t)((timestamp >> 8) & 0xFF);
+    array[4] = (uint8_t)((timestamp >> 16) & 0xFF);
+    array[3] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB
     return 7;
 }
 
