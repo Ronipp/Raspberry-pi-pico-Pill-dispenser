@@ -9,6 +9,7 @@
 #include "eeprom.h"
 #include "magnusFuncs.h"
 #include "statemachine.h"
+#include "led.h"
 
 #include "hardware/pio.h"
 
@@ -78,19 +79,27 @@ int main()
     // STATE MACHINE
     state_machine sm = statemachine_get(eepromRebootValues.pillDispenseState);
 
+    //LEDS
+    led_init();
+
     while (1) {
+        state_machine_update_time(&sm);
         switch (sm.state) {
         case CALIBRATE:
-            if (calib_btn_pressed) {
-                stepper_calibrate(&step_ctx);
-                sm.state = DISPENSE;
-            } 
+            if (step_ctx.stepper_calibrating) {
+                led_calibration_toggle(sm.time_ms);
+            } else {
+                led_wait_toggle(sm.time_ms);
+                if (calib_btn_pressed) stepper_calibrate(&step_ctx);
+            }
+            if (step_ctx.stepper_calibrated) sm.state = DISPENSE;
             break;
         case HALF_CALIBRATE:
             /* code */
             break;
         case DISPENSE:
-            /* code */
+            led_on();
+            sleep_ms(2000);
             break;
         case CHECK_IF_DISPENSED:
             /* code */
