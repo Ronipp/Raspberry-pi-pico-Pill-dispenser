@@ -20,6 +20,10 @@
 #define EEPROM_ARR_LENGTH 64
 #define LOG_START_ADDR 0
 
+#define OPTO_FORK_PIN 28
+#define BUTTON1 7
+#define BUTTON2 8
+
 
 char *rebootStatusCodes[20] = {
     "Boot",
@@ -28,11 +32,47 @@ char *rebootStatusCodes[20] = {
     "Kremlins in the code",
     "Blood for the blood god, skulls for the skull throne."};
 
+    static bool calib_btn_pressed = false;
+    static bool dispense_btn_pressed = false;
+
+void button_handler(uint gpio, uint32_t mask) {
+    if (gpio == BUTTON1) {
+        if (mask & GPIO_IRQ_EDGE_FALL) {
+            calib_btn_pressed = true;
+        } 
+        if (mask & GPIO_IRQ_EDGE_RISE) {
+            calib_btn_pressed = false;
+        }
+    } else {
+        if (mask & GPIO_IRQ_EDGE_FALL) {
+            dispense_btn_pressed = true;
+        } 
+        if (mask & GPIO_IRQ_EDGE_RISE) {
+            dispense_btn_pressed = false;
+        }
+    }
+}
+
 int main()
 {
     stdio_init_all();
+    //EEPROM
     eeprom_init_i2c(i2c0, 1000000, 5);
+    //LORAWAN
     // lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
+
+    // STEPPER MOTOR
+    uint stepperpins[4] = {BLUE, PINK, YELLOW, ORANGE};
+    stepper_ctx step_ctx = stepper_get_ctx();
+    stepper_init(&step_ctx, pio0, stepperpins, OPTO_FORK_PIN, 10, STEPPER_CLOCKWISE);
+    //LEDS
+    led_init();
+    //BUTTONS
+    init_button_with_callback(BUTTON1, 2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler);
+
+
+    //STATE MACHINE
+    state_machine sm = statemachine_get(0);
 
     while (1) {
         state_machine_update_time(&sm);
