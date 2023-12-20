@@ -49,7 +49,7 @@ int main()
 
         printf("Log %d: %s, Timestamp: %lld\n", i, rebootStatusCodes[randomNum], timestampSec);
         arrayLen = createLogArray(logArray, randomNum, timestampSec);
-        enterLogToEeprom(logArray, arrayLen, logAddr);
+        enterLogToEeprom(logArray, &arrayLen, logAddr);
         logAddr += EEPROM_ARR_LENGTH;
     }
 
