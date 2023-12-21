@@ -23,9 +23,9 @@
 | Byte Index | Information       | Value Range                      |
 |------------|-------------------|----------------------------------|
 | 0          | logStatus         | 0 or 1                           |
-| 1          | messageCode       | valuecode for log message       |
-| 2          | prevCalibStepCount| MSB of timestamp                |
-| 5          | prevCalibStepCount| LSB of timestamp                |
+| 1          | messageCode       | valuecode for log message        |
+| 2          | Timestamp         | MSB of timestamp                 |
+| 5          | Timestamp         | LSB of timestamp                 |
 | 6 - 61     | Undefined         |                                  |
 | Final 3    | Reserved CRC      |                                  |
 
@@ -53,8 +53,8 @@
 | Byte Index | Information       | Value Range                      |
 |------------|-------------------|----------------------------------|
 | 0          | pillDispenseState | 0 to 7                           |
-| 1          | rebootStatusCode  | valuecode for device status before reboot.|
+| 1          | rebootStatusCode  | valuecode for device status before reboot|
 | 2          | prevCalibStepCount| MSB of a uint16_t (16-bit value) |
 | 3          | prevCalibStepCount| LSB of a uint16_t (16-bit value) |
 | 4 - 61     | Undefined         |                                  |
-| Final 3    | Reserved CRC      |    
+| Final 3    | Reserved CRC      |                                  |

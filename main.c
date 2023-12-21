@@ -24,14 +24,6 @@
 #define BUTTON1 7
 #define BUTTON2 8
 
-
-char *rebootStatusCodes[20] = {
-    "Boot",
-    "Button press",
-    "Watchdog reset",
-    "Kremlins in the code",
-    "Blood for the blood god, skulls for the skull throne."};
-
     static bool calib_btn_pressed = false;
     static bool dispense_btn_pressed = false;
 
@@ -73,6 +65,10 @@ int main()
 
     //STATE MACHINE
     state_machine sm = statemachine_get(0);
+
+    const uint64_t bootTime = time_us_64();
+    deviceStatus devStatus;
+    reboot_sequence(&devStatus, watchdog_caused_reboot(), bootTime);
 
     while (1) {
         state_machine_update_time(&sm);
