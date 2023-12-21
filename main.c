@@ -72,6 +72,7 @@ int main()
         state_machine_update_time(&sm);
         switch (sm.state) {
         case CALIBRATE:
+        // TODO: logs and lorawan
             if (stepper_is_calibrating(&step_ctx)) {
                 led_calibration_toggle(sm.time_ms);
             } else {
@@ -94,6 +95,7 @@ int main()
             }
             break;
         case CHECK_IF_DISPENSED:
+        //TODO: actually check if something dropped... and logs
             if (stepper_is_running(&step_ctx)) {
                 led_run_toggle(sm.time_ms);
             } else {
