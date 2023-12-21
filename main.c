@@ -25,12 +25,6 @@
 #define BUTTON2 8
 
 
-char rebootStatusCodes[20] = {
-    "Boot",
-    "Button press",
-    "Watchdog reset",
-    "Kremlins in the code",
-    "Blood for the blood god, skulls for the skull throne."};
 
     static bool calib_btn_pressed = false;
     static bool dispense_btn_pressed = false;
@@ -78,11 +72,14 @@ int main()
         state_machine_update_time(&sm);
         switch (sm.state) {
         case CALIBRATE:
-            if (step_ctx.stepper_calibrating) {
+            if (stepper_is_calibrating(&step_ctx)) {
                 led_calibration_toggle(sm.time_ms);
             } else {
                 led_wait_toggle(sm.time_ms);
-                if (calib_btn_pressed) stepper_calibrate(&step_ctx);
+                if (calib_btn_pressed) {
+                    sm.pills_dropped = 0;
+                    stepper_calibrate(&step_ctx);
+                }
             }
             if (step_ctx.stepper_calibrated) sm.state = DISPENSE;
             break;
@@ -91,10 +88,23 @@ int main()
             break;
         case DISPENSE:
             led_on();
-            sleep_ms(2000);
+            if (dispense_btn_pressed) {
+                stepper_turn_steps(&step_ctx, step_ctx.step_max / 8);
+                sm.state = CHECK_IF_DISPENSED;
+            }
             break;
         case CHECK_IF_DISPENSED:
-            /* code */
+            if (stepper_is_running(&step_ctx)) {
+                led_run_toggle(sm.time_ms);
+            } else {
+                sm.pills_dropped++;
+                if (sm.pills_dropped == 7) {
+                    step_ctx.stepper_calibrated = false;
+                    sm.state = CALIBRATE;
+                } else {
+                    sm.state = DISPENSE;
+                }
+            }
             break;
         default:
             break;
