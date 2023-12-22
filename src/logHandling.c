@@ -24,11 +24,11 @@
 #define MAX_LOGS 32
 
 const char *rebootStatusCodes[] = {
-    "Boot",
-    "Button press",
-    "Watchdog caused reboot.",
-    "Kremlins in the code",
-    "Blood for the blood god, skulls for the skull throne."};
+    "Boot",                                                     // 1                                       
+    "Button press",                                             // 2
+    "Watchdog caused reboot.",                                  // 3
+    "Kremlins in the code",                                     // 4
+    "Blood for the blood god, skulls for the skull throne."};   // 5
 
 // TODO: UPDATE FUNCTION COMMENTS!!!!!!!!!!!!!!!!!!!!
 
