@@ -6,6 +6,7 @@
 typedef enum state {
     CALIBRATE,
     HALF_CALIBRATE,
+    WAIT_FOR_DISPENSE,
     DISPENSE,
     CHECK_IF_DISPENSED,
     
