@@ -8,7 +8,7 @@
 #include "../lib/logHandling.h"
 
 #define EEPROM_ARR_LENGTH 64
-#define MIN_LOG_LEN 9 // log + 3 bytes for CRC
+#define MIN_LOG_LEN 3
 #define MAX_LOG_LEN 61
 
 #define EEPROM_STATE_LEN 4
@@ -308,3 +308,4 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 {
     return ((uint32_t)(time_us_64() - bootTimestamp) / 1000);
 }
+
