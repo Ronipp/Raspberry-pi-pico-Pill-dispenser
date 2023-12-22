@@ -12,6 +12,7 @@
 #define WAIT_TOGGLE_DELAY_MS 500
 #define CALIBRATION_TOGGLE_DELAY_MS 500
 #define RUN_TOGGLE_DELAY_MS 200
+#define ERROR_TOGGLE_DELAY_MS 200
 
 static uint led_array[3] = {LED1, LED2, LED3};
 
@@ -35,13 +36,36 @@ void led_init(void) {
 
 static bool led_on_off = false;
 
+void led_off(void) {
+    for (int i=0; i<3; i++) {
+        pwm_set_gpio_level(led_array[i], 0); // led off
+    }
+    led_on_off = false;
+}
+
+void led_on(void) {
+    for (int i=0; i<3; i++) {
+        pwm_set_gpio_level(led_array[i], BRIGHTNESS); // led off
+    }
+    led_on_off = true;
+}
+
+void led_toggle(void) {
+    if (led_on_off) {
+        led_off();
+    } else {
+        led_on();
+    }
+}
+
 void led_wait_toggle(uint32_t time) {
     if (!led_timer(time, WAIT_TOGGLE_DELAY_MS)) return; // do nothing if its not time to do something
+    led_toggle();
+}
 
-    for (int i=0; i<3; i++) {
-        pwm_set_gpio_level(led_array[i], led_on_off ? BRIGHTNESS : 0); // on or off
-    }
-    led_on_off = !led_on_off;
+void led_error_toggle(uint32_t time) {
+    if (!led_timer(time, ERROR_TOGGLE_DELAY_MS)) return; // do nothing if its not time to do something
+    led_toggle();
 }
 
 static uint8_t stage = 0;
@@ -75,16 +99,4 @@ bool led_timer(uint32_t time, uint32_t delay) {
         return true;
     }
     return false;
-}
-
-void led_off(void) {
-    for (int i=0; i<3; i++) {
-        pwm_set_gpio_level(led_array[i], 0); // led off
-    }
-}
-
-void led_on(void) {
-    for (int i=0; i<3; i++) {
-        pwm_set_gpio_level(led_array[i], BRIGHTNESS); // led off
-    }
 }

@@ -13,19 +13,31 @@
 #define UART_TX_PIN 4
 #define UART_RX_PIN 5
 #define STEPPER_OPTO_FORK_PIN 28
+#define PIEZO_PIN 27
 
+static bool dropped = false;
+
+void piezo_handler(void) {
+    if (gpio_get_irq_event_mask(PIEZO_PIN) & GPIO_IRQ_EDGE_RISE) {
+        gpio_acknowledge_irq(PIEZO_PIN, GPIO_IRQ_EDGE_RISE);
+        dropped = true;
+    }
+}
 
 int main() {
     stdio_init_all();
 
-    uint stepperpins[4] = {BLUE, PINK, YELLOW, ORANGE};
-    stepper_ctx step_ctx = stepper_get_ctx();
-    stepper_ctx *ctx = &step_ctx;
-    stepper_init(ctx, pio0, stepperpins, STEPPER_OPTO_FORK_PIN, 10, STEPPER_CLOCKWISE);
-
-    stepper_half_calibrate(ctx, 4095, 314, 8);
+    gpio_init(PIEZO_PIN); // enabled, func set, dir in.
+    gpio_pull_up(PIEZO_PIN); // pull up
+    gpio_add_raw_irq_handler(PIEZO_PIN, piezo_handler); // adding raw handler since we dont want this debounced.
+    gpio_set_irq_enabled(PIEZO_PIN, GPIO_IRQ_EDGE_RISE, true); // irq enabled, only interested in falling edge (something hit the sensor).
+    irq_set_enabled(IO_IRQ_BANK0, true);
 
     while (1) {
+        if (dropped) {
+            dropped = false;
+            printf("yes\n");
+        }
         sleep_ms(100);
     }
 }

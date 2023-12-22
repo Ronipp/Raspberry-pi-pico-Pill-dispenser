@@ -25,6 +25,8 @@
 #define BUTTON1 7
 #define BUTTON2 8
 
+#define PILL_DROP_DELAY_MS 5000
+
 
 
     static bool calib_btn_pressed = false;
@@ -88,43 +90,52 @@ int main()
         switch (sm.state) {
         case CALIBRATE:
         // TODO: logs and lorawan
-            if (stepper_is_calibrating(&step_ctx)) { // if already calibrating
-                led_calibration_toggle(sm.time_ms); // toggling leds in a nice pattern.
-            } else {
-                led_wait_toggle(sm.time_ms); // toggling all leds on and off while waiting for a button press.
-                if (calib_btn_pressed) { // if button is pressed
-                    sm.pills_dropped = 0; // reset pill dropping count.
-                    stepper_calibrate(&step_ctx); // calibrate :D
-                }
+            step_ctx.stepper_calibrated = false; // set stepper calibrated status to false.
+            led_wait_toggle(sm.time_ms); // toggling all leds on and off while waiting for a button press.
+            if (calib_btn_pressed) { // if button is pressed
+                stepper_calibrate(&step_ctx); // calibrate :D
+                sm.pills_dropped = 0; // reset pill dropping count.
+                sm.state = WAIT_FOR_DISPENSE; // when calibration is done move to next state.
             }
-            if (step_ctx.stepper_calibrated) sm.state = DISPENSE; // when calibration is done move to next state.
             break;
         case HALF_CALIBRATE:
             /* code */
             break;
         case WAIT_FOR_DISPENSE:
-            led_on(); // turn leds on when user can press the button to start dispensing.
-            if (dispense_btn_pressed) { // if button pressed
-                led_off(); // turn the led off
-                sm.state = DISPENSE; // move to state where dispensing is actually done.
+            if (stepper_is_calibrating(&step_ctx)) { // if calibrating
+                led_calibration_toggle(sm.time_ms); // toggling leds in a nice pattern.
+            } else {
+                led_on(); // turn leds on when user can press the button to start dispensing.
+                if (dispense_btn_pressed) { // if button pressed
+                    led_off(); // turn the led off
+                    sm.state = DISPENSE; // move to state where dispensing is actually done.
+                }
             }
             break;
         case DISPENSE:
-        // TODO: timer
-
+            // TODO: timer
+            if ((sm.time_ms - sm.time_pill_dropped_ms) > PILL_DROP_DELAY_MS) { // if enough time has passed from last pill drop.
+                stepper_turn_steps(&step_ctx, step_ctx.step_max / 8); // turn stepper eighth of a full turn.
+                sm.time_pill_dropped_ms = sm.time_ms;
+                sm.state = CHECK_IF_DISPENSED; // go to check if pill was dispensed correctly.
+            }
+            break;
         case CHECK_IF_DISPENSED:
         //TODO: actually check if something dropped... and logs
-            if (stepper_is_running(&step_ctx)) { // if stepper is still running we let it do its thing.
-                led_run_toggle(sm.time_ms); // and toggle some pretty lights.
-            } else {
-                sm.pills_dropped++;
-                if (sm.pills_dropped == 7) {
-                    step_ctx.stepper_calibrated = false;
-                    sm.state = CALIBRATE;
+            if (stepper_is_running(&step_ctx)) { // if stepper is still running we let it do its thing
+                led_run_toggle(sm.time_ms); // and toggle some pretty lights
+            } else if (dropped) { // if pill drop was detected by piezo sensor
+                sm.pills_dropped++; // increment pill drop count
+                if (sm.pills_dropped == 7) { // if maximum number of pills dropped
+                    sm.state = CALIBRATE; // set state to calibration. (start all over again)
                 } else {
-                    sm.state = DISPENSE;
+                    sm.state = DISPENSE; // if number of pills dropped not max dispense another
                 }
+            } else { // if stepper is not running and no pill drop detected
+                // TODO: figure out timing things and setting state
             }
+            break;
+        case PILL_NOT_DROPPED:
             break;
         default:
             break;
