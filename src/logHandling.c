@@ -24,7 +24,7 @@
 #define MAX_LOGS 32
 
 const char *rebootStatusCodes[] = {
-    "Boot",                                                   // 1
+    "Boot Finished",                                                   // 1
     "Button press",                                           // 2
     "Watchdog caused reboot.",                                // 3
     "Kremlins in the code",                                   // 4
@@ -260,7 +260,7 @@ int findFirstAvailableLog()
 // Calculates and returns the timestamp since boot in seconds.
 uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 {
-    return ((uint32_t)(time_us_64() - bootTimestamp) / 1000);
+    return ((uint32_t)(time_us_64() - bootTimestamp) / 1000000);
 }
 
 // Creates and pushes a log to EEPROM.
