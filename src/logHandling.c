@@ -267,6 +267,7 @@ void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int message
 
     printf("pushLogToEeprom(): Pushing log to EEPROM\n");
     printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    printf("Log address: %d\n", (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
     printf("Log to be pushed: %d\n", messageCode);
 
     enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
