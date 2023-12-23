@@ -50,32 +50,6 @@ int main()
 {
 
     stdio_init_all();
-    eeprom_init_i2c(i2c0, 1000000, 5);
-
-    uint8_t data[EEPROM_ARR_LENGTH];
-    uint64_t time = time_us_64();
-    DeviceStatus devStatus;
-    printf("watchdog caused reboot: %d\n", watchdog_caused_reboot());
-    printf("Reboot seq start\n");
-    reboot_sequence(&devStatus, time);
-
-    devStatus.prevCalibStepCount = 4000;
-    devStatus.pillDispenseState = 1;
-    devStatus.rebootStatusCode = 0;
-
-    updatePillDispenserStatus(&devStatus);
-
-    printValidLogs();
-
-    watchdog_enable(10000, true);
-    while (true){
-        watchdog_update();
-    }
-
-
-    /*
-
-    stdio_init_all();
     //EEPROM
     eeprom_init_i2c(i2c0, 1000000, 5);
     //LORAWAN
@@ -125,5 +99,5 @@ int main()
         } 
     }
     return 0;
-    */
+
 }

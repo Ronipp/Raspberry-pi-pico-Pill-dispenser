@@ -23,12 +23,25 @@
 #define LOG_SIZE 64
 #define MAX_LOGS 32
 
-const char *rebootStatusCodes[] = {
-    "Boot Finished",                                          // 1
-    "Button press",                                           // 2
-    "Watchdog caused reboot.",                                // 3
-    "Kremlins in the code",                                   // 4
-    "Blood for the blood god, skulls for the skull throne."}; // 5
+const char *logMessages[] = {
+    "Boot Finished",          // 1
+    "Button press",           // 2
+    "Watchdog caused reboot", // 3
+    "Idle",
+    "Dispensing pill 1",
+    "Dispensing pill 2",
+    "Dispensing pill 3",
+    "Dispensing pill 4",
+    "Dispensing pill 5",
+    "Dispensing pill 6",
+    "Dispensing pill 7",
+    "pill dispensed",
+    "pill drop not detected",
+    "Rotating to home position",
+    "Pill dispenser is empty",
+    "Doing half calibration",
+    "Doing full calibration",
+    "Calibration finished"};
 
 // TODO: UPDATE FUNCTION COMMENTS!!!!!!!!!!!!!!!!!!!!
 
@@ -44,8 +57,8 @@ uint16_t crc16(const uint8_t *data, size_t length)
         crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
     }
 
-    printf("crc16(): Calculated CRC\n");
-    printf("crc: %d\n", crc);
+    // printf("crc16(): Calculated CRC\n");
+    // printf("crc: %d\n", crc);
     return crc;
 }
 
@@ -62,13 +75,13 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
 
 int getChecksum(uint8_t *base8Array, int *arrayLen)
 {
-    printf("getChecksum(): Calculating checksum\n");
-    printf("base8Array: ");
-    for (int i = 0; i < *arrayLen; i++)
-    {
-        printf("%d ", base8Array[i]);
-    }
-    printf("\n");
+    // printf("getChecksum(): Calculating checksum\n");
+    // printf("base8Array: ");
+    // for (int i = 0; i < *arrayLen; i++)
+    // {
+    //     printf("%d ", base8Array[i]);
+    // }
+    // printf("\n");
 
     // Calculate and return the CRC as the checksum
     return crc16(base8Array, *arrayLen);
@@ -77,7 +90,7 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
 // Uses CRC to verify the integrity of the given array.
 bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
 {
-    printf("verifyDataIntegrity(): Verifying data integrity\n");
+    // printf("verifyDataIntegrity(): Verifying data integrity\n");
 
     // Check if the checksum for the array matches the expected value (0 for OK)
     if (getChecksum(base8Array, arrayLen) == 0)
@@ -92,7 +105,7 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
 
 void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimestamp)
 {
-    printf("reboot_sequence(): Reboot sequence started\n");
+    // printf("reboot_sequence(): Reboot sequence started\n");
     // Read previous status from Eeprom
     if (readPillDispenserStatus(ptrToStruct) == false)
     {
@@ -101,7 +114,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         ptrToStruct->prevCalibStepCount = 0;
     }
 
-    printf("reboot_sequence(): finding first available log\n");
+    // printf("reboot_sequence(): finding first available log\n");
     // Find the first available log, emties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
 
@@ -126,15 +139,15 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
-    printf("enterLogToEeprom(): Entering log to EEPROM addr: %d\n", logAddr);
-    printf("array: ");
-    for (int i = 0; i < *arrayLen; i++)
-    {
-        printf("%d ", crcAppendedArray[i]);
-    }
-    printf("\n");
+    // printf("enterLogToEeprom(): Entering log to EEPROM addr: %d\n", logAddr);
+    // printf("array: ");
+    // for (int i = 0; i < *arrayLen; i++)
+    // {
+    //     printf("%d ", crcAppendedArray[i]);
+    // }
+    // printf("\n");
 
-    printf("arrayLen: %d\n", *arrayLen);
+    // printf("arrayLen: %d\n", *arrayLen);
     ;
 
     // Write the array to EEPROM
@@ -144,7 +157,7 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 // sets the first byte of every log to 0 indicating that it is not in use.
 void zeroAllLogs()
 {
-    printf("Clearing all logs\n");
+    // printf("Clearing all logs\n");
 
     int count = 0;
     uint16_t logAddr = 0;
@@ -156,7 +169,7 @@ void zeroAllLogs()
         count++;
     }
 
-    printf("Logs cleared\n");
+    // printf("Logs cleared\n");
 }
 
 // Fills a log array from the given message code and timestamp.
@@ -188,10 +201,10 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
 // updates status to Eeprom
 void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
-    printf("updatePillDispenserStatus(): Updating pill dispenser status to EEPROM\n");
+    // printf("updatePillDispenserStatus(): Updating pill dispenser status to EEPROM\n");
     uint8_t array[LOG_ARR_LEN];
     int arrayLen = createPillDispenserStatusLogArray(array, ptrToStruct->pillDispenseState, ptrToStruct->rebootStatusCode, ptrToStruct->prevCalibStepCount);
-    printf("updatePillDispenserStatus(): arrayLen: %d\n", arrayLen);
+    // printf("updatePillDispenserStatus(): arrayLen: %d\n", arrayLen);
     enterLogToEeprom(array, &arrayLen, REBOOT_STATUS_ADDR);
 }
 
@@ -199,26 +212,26 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 // returns false if eeprom CRC check fails, true otherwise.
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
-    printf("readPillDispenserStatus(): Reading pill dispenser status from EEPROM\n");
+    // printf("readPillDispenserStatus(): Reading pill dispenser status from EEPROM\n");
     bool eepromReadSuccess = true;
     uint8_t valuesRead[LOG_ARR_LEN];
 
     // Read EEPROM values into the array.
     eeprom_read_page(REBOOT_STATUS_ADDR, valuesRead, DISPENSER_STATE_ARR_LEN); // TODO: address is hardcoded, rework later.
 
-    printf("readPillDispenserStatus(): EEPROM values read\n");
-    printf("valuesRead: ");
-    for (int i = 0; i < DISPENSER_STATE_ARR_LEN; i++)
-    {
-        printf("%d ", valuesRead[i]);
-    }
-    printf("\n");
+    // printf("readPillDispenserStatus(): EEPROM values read\n");
+    // printf("valuesRead: ");
+    // for (int i = 0; i < DISPENSER_STATE_ARR_LEN; i++)
+    // {
+    //     printf("%d ", valuesRead[i]);
+    // }
+    // printf("\n");
 
     // Verify data integrity.
     int len = DISPENSER_STATE_ARR_LEN;
     if (verifyDataIntegrity(valuesRead, &len) == true)
     {
-        printf("readPillDispenserStatus(): Data integrity verified\n");
+        // printf("readPillDispenserStatus(): Data integrity verified\n");
         // Extract and assign values from the array to the struct fields.
         ptrToStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
         ptrToStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
@@ -227,7 +240,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
     }
     else
     {
-        printf("readPillDispenserStatus(): Failed to verify data integrity\n");
+        // printf("readPillDispenserStatus(): Failed to verify data integrity\n");
         eepromReadSuccess = false; // Data integrity verification failed
     }
 
@@ -237,7 +250,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 // Finds the first available log, empties all logs if all are full.
 int findFirstAvailableLog()
 {
-    printf("findFirstAvailableLog(): Finding first available log\n");
+    // printf("findFirstAvailableLog(): Finding first available log\n");
     int count = 0;
     uint16_t logAddr = 0;
 
@@ -246,7 +259,7 @@ int findFirstAvailableLog()
     {
         if (eeprom_read_byte(logAddr) == 0)
         {
-            printf("findFirstAvailableLog(): First available log: %d\n", count);
+            // printf("findFirstAvailableLog(): First available log: %d\n", count);
             return count;
         }
         logAddr += LOG_SIZE;
@@ -254,8 +267,8 @@ int findFirstAvailableLog()
     }
 
     zeroAllLogs(); // Empry all logs
-    printf("findFirstAvailableLog(): All logs full, clearing all logs\n");
-    printf("findFirstAvailableLog(): First available log: 0\n");
+    // printf("findFirstAvailableLog(): All logs full, clearing all logs\n");
+    // printf("findFirstAvailableLog(): First available log: 0\n");
     return 0;
 }
 
@@ -269,26 +282,26 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
 {
     uint8_t logArray[LOG_LEN];
-    printf("Timestamp since boot: %u\n", getTimestampSinceBoot(bootTimestamp));
+    // printf("Timestamp since boot: %u\n", getTimestampSinceBoot(bootTimestamp));
     int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
 
-    printf("pushLogToEeprom(): Pushing log to EEPROM\n");
-    printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
-    printf("Log address: %d\n", (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
-    printf("Log to be pushed: %d\n", messageCode);
+    // printf("pushLogToEeprom(): Pushing log to EEPROM\n");
+    // printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    // printf("Log address: %d\n", (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
+    // printf("Log to be pushed: %d\n", messageCode);
 
     enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
     updateUnusedLogIndex(pillDispenserStatusStruct);
 
-    printf("pushLogToEeprom(): Log pushed to EEPROM\n");
-    printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    // printf("pushLogToEeprom(): Log pushed to EEPROM\n");
+    // printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
 }
 
 // Updates unusedLogIndex to the next available log.
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 {
-    printf("updateUnusedLogIndex(): Updating unused log index\n");
-    
+    // printf("updateUnusedLogIndex(): Updating unused log index\n");
+
     if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS)
     {
         pillDispenserStatusStruct->unusedLogIndex++;
@@ -298,14 +311,14 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
         zeroAllLogs();
         pillDispenserStatusStruct->unusedLogIndex = 0;
     }
-    printf("Unused log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    // printf("Unused log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
 }
 
 // Prints all the valid logs stored on the EEPROM.
 void printValidLogs()
 {
-    printf("printValidLogs(): Printing valid logs\n");
-    printf("\n\n\n");
+    // printf("printValidLogs(): Printing valid logs\n");
+    // printf("\n\n\n");
 
     for (int i = 0; i < MAX_LOGS; i++)
     {
@@ -321,7 +334,7 @@ void printValidLogs()
             uint8_t messageCode = logData[1];
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
 
-            printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, logAddr, rebootStatusCodes[messageCode], timestamp);
+            // printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, logAddr, logMessages[messageCode], timestamp);
         }
     }
 }

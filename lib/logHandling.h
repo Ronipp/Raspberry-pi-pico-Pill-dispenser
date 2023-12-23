@@ -1,7 +1,8 @@
 #ifndef logHandling_h
 #define logHandling_h
 
-extern const char *rebootStatusCodes[];
+extern const char *logMessages[];
+extern const char *pillDispenserStatus[];
 
 typedef struct DeviceStatus
 {
