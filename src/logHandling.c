@@ -44,6 +44,8 @@ uint16_t crc16(const uint8_t *data, size_t length)
         crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
     }
 
+    printf("crc16(): Calculated CRC\n");
+    printf("crc: %d\n", crc);
     return crc;
 }
 
@@ -89,14 +91,13 @@ int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminati
     base8Array[zeroIndex] = base8Array[zeroIndex + 1];
     base8Array[zeroIndex + 1] = base8Array[zeroIndex + 2];
 
-    /*
+    printf("getChecksum(): Calculating checksum\n");
     printf("base8Array: ");
     for (int i = 0; i <= zeroIndex + 2; i++)
     {
         printf("%d ", base8Array[i]);
     }
     printf("\n");
-    */
 
     // Calculate and return the CRC as the checksum
     return crc16(base8Array, zeroIndex + 2);
@@ -105,6 +106,8 @@ int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminati
 // Uses CRC to verify the integrity of the given array.
 bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminatingZero)
 {
+    printf("verifyDataIntegrity(): Verifying data integrity\n");
+
     int arrlen = EEPROM_ARR_LENGTH;
     // Check if the checksum for the array matches the expected value (0 for OK)
     if (getChecksum(base8Array, arrayLen, flagArrayLenAsTerminatingZero) == 0)
@@ -168,8 +171,8 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     }
     printf("\n");
 
-    printf("arrayLen: %d\n", *arrayLen);;
-
+    printf("arrayLen: %d\n", *arrayLen);
+    ;
 
     // Write the array to EEPROM
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
@@ -229,11 +232,20 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 // returns false if eeprom CRC check fails, true otherwise.
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
+    printf("readPillDispenserStatus(): Reading pill dispenser status from EEPROM\n");
     bool eepromReadSuccess = true;
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
 
     // Read EEPROM values into the array.
     eeprom_read_page(REBOOT_STATUS_ADDR, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
+
+    printf("readPillDispenserStatus(): EEPROM values read\n");
+    printf("valuesRead: ");
+    for (int i = 0; i < EEPROM_ARR_LENGTH; i++)
+    {
+        printf("%d ", valuesRead[i]);
+    }
+    printf("\n");
 
     // Verify data integrity.
     int len = EEPROM_ARR_LENGTH;
