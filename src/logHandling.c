@@ -117,7 +117,7 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAs
     }
 }
 
-void reboot_sequence(struct deviceStatus *ptrToStruct, const bool readWatchdogStatus, const uint64_t bootTimestamp)
+void reboot_sequence(struct DeviceStatus *ptrToStruct, const bool readWatchdogStatus, const uint64_t bootTimestamp)
 {
     // Read previous status from Eeprom and watchdog.
     if (readPillDispenserStatus(ptrToStruct, readWatchdogStatus) == false)
@@ -232,7 +232,7 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
 }
 
 // updates status to Eeprom and watchdog.
-void updatePillDispenserStatus(struct deviceStatus *ptrToStruct)
+void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
     watchdog_hw->scratch[0] = ptrToStruct->pillDispenseState;
     watchdog_hw->scratch[1] = ptrToStruct->rebootStatusCode;
@@ -245,7 +245,7 @@ void updatePillDispenserStatus(struct deviceStatus *ptrToStruct)
 
 // reads previous status from Eeprom and watchdog.
 // returns false if eeprom CRC check fails, true otherwise.
-bool readPillDispenserStatus(struct deviceStatus *ptrToStruct, const bool readWatchdogStatus)
+bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct, const bool readWatchdogStatus)
 {
     bool eepromReadSuccess = true;
     if (readWatchdogStatus == true)
@@ -309,7 +309,7 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 }
 
 // Creates and pushes a log to EEPROM.
-void pushLogToEeprom(struct deviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
+void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
 {
     uint8_t logArray[EEPROM_ARR_LENGTH];
     int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
@@ -318,7 +318,7 @@ void pushLogToEeprom(struct deviceStatus *pillDispenserStatusStruct, int message
 }
 
 // Updates unusedLogIndex to the next available log.
-void updateUnusedLogIndex(struct deviceStatus *pillDispenserStatusStruct)
+void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 {
     if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS)
     {

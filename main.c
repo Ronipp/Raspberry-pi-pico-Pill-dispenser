@@ -55,7 +55,7 @@ int main()
 
     uint8_t data[EEPROM_ARR_LENGTH];
     uint64_t time = time_us_64();
-    deviceStatus devStatus;
+    DeviceStatus devStatus;
     reboot_sequence(&devStatus, watchdog_caused_reboot(), time);
 
     while (true){
@@ -85,7 +85,7 @@ int main()
     state_machine sm = statemachine_get(0);
 
     const uint64_t bootTime = time_us_64();
-    deviceStatus devStatus;
+    DeviceStatus devStatus;
     reboot_sequence(&devStatus, watchdog_caused_reboot(), bootTime);
 
     while (1) {
