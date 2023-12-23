@@ -110,7 +110,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     int arrayLen = 0;
     if (watchdog_caused_reboot() == true) // watchdog caused reboot.
     {
-        pushLogToEeprom(ptrToStruct, 3, bootTimestamp);
+        pushLogToEeprom(ptrToStruct, 2, bootTimestamp);
     }
 
     // Write boot message upon completion of reboot sequence.
@@ -260,7 +260,7 @@ int findFirstAvailableLog()
 // Calculates and returns the timestamp since boot in seconds.
 uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 {
-    return ((uint32_t)(time_us_64() - bootTimestamp) / 1000000);
+    return (uint32_t)((time_us_64() - bootTimestamp) / 1000000);
 }
 
 // Creates and pushes a log to EEPROM.
@@ -316,7 +316,7 @@ void printValidLogs()
             uint8_t messageCode = logData[1];
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
 
-            printf("Log %d: Message: %s, Timestamp: %u\n", i, rebootStatusCodes[messageCode], timestamp);
+            printf("Log %d: Message: %s, Timestamp: %u\n", i + 1, rebootStatusCodes[messageCode], timestamp);
         }
     }
 }
