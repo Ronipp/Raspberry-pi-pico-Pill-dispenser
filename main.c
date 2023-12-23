@@ -56,6 +56,7 @@ int main()
     uint8_t data[EEPROM_ARR_LENGTH];
     uint64_t time = time_us_64();
     DeviceStatus devStatus;
+    printf("Reboot seq start\n");
     reboot_sequence(&devStatus, time);
 
     while (true){
