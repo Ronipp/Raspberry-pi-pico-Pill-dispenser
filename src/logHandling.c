@@ -7,11 +7,11 @@
 #include "string.h"
 #include "../lib/logHandling.h"
 
-#define EEPROM_ARR_LENGTH 64
-#define MIN_LOG_LEN 3
-#define MAX_LOG_LEN 61
+#define LOG_LEN 6 // Does not include CRC
+#define EEPROM_ARR_LENGTH LOG_LEN + 2 // Includes CRC
 
-#define EEPROM_STATE_LEN 4
+
+#define EEPROM_STATE_LEN 4 // Does not include CRC
 #define PILL_DISPENSE_STATE 0
 #define REBOOT_STATUS_CODE 1
 #define PREV_CALIB_STEP_COUNT_MSB 2
@@ -79,12 +79,6 @@ int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminati
                 break;
             }
         }
-    }
-
-    // Validate array length
-    if (zeroIndex < MIN_LOG_LEN || zeroIndex > MAX_LOG_LEN)
-    {
-        return -1; // Array too long or too short to be valid
     }
 
     // Modify the array by removing the terminating zero and adjust the length
@@ -156,13 +150,6 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
-    // Validate array length
-    if (*arrayLen < MIN_LOG_LEN || *arrayLen > MAX_LOG_LEN)
-    {
-        printf("enterLogToEeprom(): Arraylen is invalid\n");
-        return false; // Array too long or too short to be valid
-    }
-
     printf("enterLogToEeprom(): Entering log to EEPROM\n");
     printf("array: ");
     for (int i = 0; i <= *arrayLen; i++)
@@ -205,7 +192,7 @@ int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
     array[4] = (uint8_t)((timestamp >> 8) & 0xFF);
     array[3] = (uint8_t)((timestamp >> 16) & 0xFF);
     array[2] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB
-    return 7;
+    return LOG_LEN;
 }
 
 // Fills a pill dispenser status log array from the given pill dispenser state, reboot status code, and previous calibration step count.
