@@ -24,7 +24,7 @@
 #define MAX_LOGS 32
 
 const char *rebootStatusCodes[] = {
-    "Boot Finished",                                                   // 1
+    "Boot Finished",                                          // 1
     "Button press",                                           // 2
     "Watchdog caused reboot.",                                // 3
     "Kremlins in the code",                                   // 4
@@ -285,6 +285,8 @@ void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int message
 // Updates unusedLogIndex to the next available log.
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 {
+    printf("updateUnusedLogIndex(): Updating unused log index\n");
+    printf("Unused log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
     if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS)
     {
         pillDispenserStatusStruct->unusedLogIndex++;
