@@ -236,7 +236,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
     printf("\n");
 
     // Verify data integrity.
-    int len = LOG_ARR_LEN;
+    int len = DISPENSER_STATE_ARR_LEN;
     if (verifyDataIntegrity(valuesRead, &len, true) == true)
     {
         printf("readPillDispenserStatus(): Data integrity verified\n");
