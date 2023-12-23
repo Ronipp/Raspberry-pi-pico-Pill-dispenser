@@ -29,6 +29,4 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
 void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp);
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 
-Ensure you have the necessary includes (such as stdint.h, stddef.h, and stdbool.h) to use the necessary types and boolean values (true and false). 
-
 #endif
