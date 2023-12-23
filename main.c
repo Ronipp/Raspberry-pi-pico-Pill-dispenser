@@ -51,7 +51,7 @@ int main()
 
     stdio_init_all();
 
-    watchdog_enable(100000, true);
+    watchdog_enable(1000000000, true);
 
     uint8_t data[EEPROM_ARR_LENGTH];
     uint64_t time = time_us_64();
