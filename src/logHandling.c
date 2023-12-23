@@ -229,9 +229,9 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 
     printf("readPillDispenserStatus(): EEPROM values read\n");
     printf("valuesRead: ");
-    for (int i = 0; i < LOG_ARR_LEN; i++)
+    for (int i = 0; i < DISPENSER_STATE_ARR_LEN; i++)
     {
-        printf("%d ", valuesRead[i]);
+        printf("%d: %d, ", i, valuesRead[i]);
     }
     printf("\n");
 
