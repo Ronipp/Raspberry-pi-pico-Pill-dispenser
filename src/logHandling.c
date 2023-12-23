@@ -122,7 +122,6 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     // Read previous status from Eeprom
     if (readPillDispenserStatus(ptrToStruct) == false)
     {
-        printf("reboot_sequence(): Failed to read pill dispenser status\n");
         ptrToStruct->pillDispenseState = 0;
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
@@ -130,19 +129,19 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
 
     // Find the first available log, emties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
-    printf("Unused log index: %d\n", ptrToStruct->unusedLogIndex);
 
     // Write reboot cause to log if applicable.
     uint8_t logArray[EEPROM_ARR_LENGTH];
-    int arrayLen = createLogArray(logArray, 3, getTimestampSinceBoot(bootTimestamp));
+    int arrayLen = 0;
     if (watchdog_caused_reboot() == true) // watchdog caused reboot.
     {
-        enterLogToEeprom(logArray, &arrayLen, (ptrToStruct->unusedLogIndex * LOG_SIZE));
+        arrayLen = createLogArray(logArray, 3, getTimestampSinceBoot(bootTimestamp));
+        pushLogToEeprom(ptrToStruct, 3, bootTimestamp);
     }
 
     // Write boot message upon completion of reboot sequence.
     arrayLen = createLogArray(logArray, 0, getTimestampSinceBoot(bootTimestamp));
-    enterLogToEeprom(logArray, &arrayLen, (ptrToStruct->unusedLogIndex * LOG_SIZE));
+    pushLogToEeprom(ptrToStruct, 0, bootTimestamp);
 }
 
 // Writes the given array to the given EEPROM address.
@@ -203,7 +202,7 @@ int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
     array[4] = (uint8_t)((timestamp >> 8) & 0xFF);
     array[3] = (uint8_t)((timestamp >> 16) & 0xFF);
     array[2] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB
-    return 6;
+    return 7;
 }
 
 // Fills a pill dispenser status log array from the given pill dispenser state, reboot status code, and previous calibration step count.
@@ -230,14 +229,11 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 // returns false if eeprom CRC check fails, true otherwise.
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
-    printf("readPillDispenserStatus(): Reading pill dispenser status\n");
     bool eepromReadSuccess = true;
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
 
     // Read EEPROM values into the array.
-    printf("readPillDispenserStatus(): Reading EEPROM values\n");
     eeprom_read_page(REBOOT_STATUS_ADDR, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
-    printf("readPillDispenserStatus(): EEPROM values read\n");
 
     // Verify data integrity.
     int len = EEPROM_ARR_LENGTH;
@@ -256,7 +252,6 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
         eepromReadSuccess = false; // Data integrity verification failed
     }
 
-    printf("readPillDispenserStatus(): Pill dispenser status read\n");
     return eepromReadSuccess;
 }
 

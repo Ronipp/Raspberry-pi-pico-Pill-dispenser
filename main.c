@@ -59,6 +59,7 @@ int main()
     printf("watchdog caused reboot: %d\n", watchdog_caused_reboot());
     printf("Reboot seq start\n");
     reboot_sequence(&devStatus, time);
+    updatePillDispenserStatus(&devStatus);
 
     watchdog_enable(10000, true);
     while (true){
