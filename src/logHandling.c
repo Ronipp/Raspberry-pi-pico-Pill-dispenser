@@ -286,7 +286,7 @@ void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int message
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 {
     printf("updateUnusedLogIndex(): Updating unused log index\n");
-    printf("Unused log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    
     if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS)
     {
         pillDispenserStatusStruct->unusedLogIndex++;
@@ -296,6 +296,7 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
         zeroAllLogs();
         pillDispenserStatusStruct->unusedLogIndex = 0;
     }
+    printf("Unused log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
 }
 
 // Prints all the valid logs stored on the EEPROM.
