@@ -50,7 +50,7 @@ int main()
 {
 
     stdio_init_all();
-
+    eeprom_init_i2c(i2c0, 1000000, 5);
 
 
     uint8_t data[EEPROM_ARR_LENGTH];
