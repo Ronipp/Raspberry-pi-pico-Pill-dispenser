@@ -323,7 +323,7 @@ void printValidLogs()
             uint8_t messageCode = logData[1];
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
 
-            printf("Log %d: Message: %s, Timestamp: %u\n", i + 1, rebootStatusCodes[messageCode], timestamp);
+            printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, i*LOG_SIZE, rebootStatusCodes[messageCode], timestamp);
         }
     }
 }
