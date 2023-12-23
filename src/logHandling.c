@@ -108,12 +108,10 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     int arrayLen = 0;
     if (watchdog_caused_reboot() == true) // watchdog caused reboot.
     {
-        arrayLen = createLogArray(logArray, 3, getTimestampSinceBoot(bootTimestamp));
         pushLogToEeprom(ptrToStruct, 3, bootTimestamp);
     }
 
     // Write boot message upon completion of reboot sequence.
-    arrayLen = createLogArray(logArray, 0, getTimestampSinceBoot(bootTimestamp));
     pushLogToEeprom(ptrToStruct, 0, bootTimestamp);
 }
 
