@@ -58,7 +58,7 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
     base8Array[*arrayLen] = crc >> 8;       // MSB
     base8Array[*arrayLen + 1] = crc & 0xFF; // LSB
 
-    *arrayLen += 1; // Update the array length to reflect the addition of the CRC
+    *arrayLen += 2; // Update the array length to reflect the addition of the CRC
 }
 
 int getChecksum(uint8_t *base8Array, int *arrayLen)
