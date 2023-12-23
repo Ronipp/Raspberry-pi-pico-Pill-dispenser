@@ -232,7 +232,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
     printf("readPillDispenserStatus(): Reading pill dispenser status\n");
     bool eepromReadSuccess = true;
-    uint8_t valuesRead[EEPROM_ARR_LENGTH];
+    uint8_t valuesRead[EEPROM_ARR_LENGTH + 10];
 
     // Read EEPROM values into the array.
     printf("readPillDispenserStatus(): Reading EEPROM values\n");
