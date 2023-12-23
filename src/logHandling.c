@@ -230,16 +230,19 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 // returns false if eeprom CRC check fails, true otherwise.
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
+    printf("readPillDispenserStatus(): Reading pill dispenser status\n");
     bool eepromReadSuccess = true;
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
 
     // Read EEPROM values into the array.
     eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
+    printf("readPillDispenserStatus(): EEPROM values read\n");
 
     // Verify data integrity.
     int len = EEPROM_ARR_LENGTH;
     if (verifyDataIntegrity(valuesRead, &len, true) == true)
     {
+        printf("readPillDispenserStatus(): Data integrity verified\n");
         // Extract and assign values from the array to the struct fields.
         ptrToStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
         ptrToStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
@@ -252,6 +255,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
         eepromReadSuccess = false; // Data integrity verification failed
     }
 
+    printf("readPillDispenserStatus(): Pill dispenser status read\n");
     return eepromReadSuccess;
 }
 
