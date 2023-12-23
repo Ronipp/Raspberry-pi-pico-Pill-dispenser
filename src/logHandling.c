@@ -65,7 +65,7 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
 {
     printf("getChecksum(): Calculating checksum\n");
     printf("base8Array: ");
-    for (int i = 0; i <= *arrayLen; i++)
+    for (int i = 0; i < *arrayLen; i++)
     {
         printf("%d ", base8Array[i]);
     }
@@ -123,7 +123,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
 bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 {
     // Create new array and append CRC
-    uint8_t crcAppendedArray[LOG_ARR_LEN];
+    uint8_t crcAppendedArray[arrayLen + 2];
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
@@ -187,8 +187,10 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
 // updates status to Eeprom
 void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
+    printf("updatePillDispenserStatus(): Updating pill dispenser status to EEPROM\n");
     uint8_t array[LOG_ARR_LEN];
     int arrayLen = createPillDispenserStatusLogArray(array, ptrToStruct->pillDispenseState, ptrToStruct->rebootStatusCode, ptrToStruct->prevCalibStepCount);
+    printf("updatePillDispenserStatus(): arrayLen: %d\n", arrayLen);
     enterLogToEeprom(array, &arrayLen, REBOOT_STATUS_ADDR);
 }
 
