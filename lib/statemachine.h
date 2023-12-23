@@ -9,7 +9,7 @@ typedef enum state {
     WAIT_FOR_DISPENSE,
     DISPENSE,
     CHECK_IF_DISPENSED,
-    PILL_NOT_DROPPED;
+    PILL_NOT_DROPPED,
     
 } state_enum;
 
