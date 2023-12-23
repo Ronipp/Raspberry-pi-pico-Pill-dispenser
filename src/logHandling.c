@@ -61,31 +61,8 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
     *arrayLen += 1; // Update the array length to reflect the addition of the CRC
 }
 
-int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminatingZero)
+int getChecksum(uint8_t *base8Array, int *arrayLen)
 {
-    int zeroIndex = 0;
-
-    if (flagArrayLenAsTerminatingZero)
-    {
-        zeroIndex = *arrayLen;
-    }
-    else
-    {
-        // Find the terminating zero
-        for (int i = 0; i < *arrayLen; i++)
-        {
-            if (base8Array[i] == 0)
-            {
-                zeroIndex = i;
-                break;
-            }
-        }
-    }
-
-    // Modify the array by removing the terminating zero and adjust the length
-    base8Array[zeroIndex] = base8Array[zeroIndex + 1];
-    base8Array[zeroIndex + 1] = base8Array[zeroIndex + 2];
-
     printf("getChecksum(): Calculating checksum\n");
     printf("base8Array: ");
     for (int i = 0; i <= zeroIndex + 2; i++)
@@ -99,13 +76,12 @@ int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminati
 }
 
 // Uses CRC to verify the integrity of the given array.
-bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminatingZero)
+bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
 {
     printf("verifyDataIntegrity(): Verifying data integrity\n");
 
-    int arrlen = LOG_ARR_LEN;
     // Check if the checksum for the array matches the expected value (0 for OK)
-    if (getChecksum(base8Array, arrayLen, flagArrayLenAsTerminatingZero) == 0)
+    if (getChecksum(base8Array, arrayLen) == 0)
     {
         return true; // Data integrity verified
     }
@@ -231,7 +207,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
     printf("valuesRead: ");
     for (int i = 0; i < DISPENSER_STATE_ARR_LEN; i++)
     {
-        printf("%d: %d, ", i, valuesRead[i]);
+        printf("%d ", valuesRead[i]);
     }
     printf("\n");
 
