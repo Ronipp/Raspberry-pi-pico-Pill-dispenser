@@ -123,7 +123,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
 bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 {
     // Create new array and append CRC
-    uint8_t crcAppendedArray[arrayLen + 2];
+    uint8_t crcAppendedArray[*arrayLen + 2];
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
