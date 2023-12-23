@@ -47,6 +47,23 @@ void button_handler(uint gpio, uint32_t mask) {
 
 int main()
 {
+
+    stdio_init_all();
+
+    watchdog_enable(100000, true);
+
+    uint8_t data[EEPROM_ARR_LENGTH];
+    uint64_t time = time_us_64();
+    deviceStatus devStatus;
+    reboot_sequence(&devStatus, watchdog_caused_reboot(), time);
+
+    while (true){
+        watchdog_update();
+    }
+
+
+    /*
+
     stdio_init_all();
     //EEPROM
     eeprom_init_i2c(i2c0, 1000000, 5);
@@ -83,17 +100,19 @@ int main()
             if (step_ctx.stepper_calibrated) sm.state = DISPENSE;
             break;
         case HALF_CALIBRATE:
-            /* code */
+            // code 
             break;
         case DISPENSE:
             led_on();
             sleep_ms(2000);
             break;
         case CHECK_IF_DISPENSED:
-            /* code */
+            // code
             break;
         default:
             break;
         } 
     }
+    return 0;
+    */
 }

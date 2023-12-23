@@ -49,14 +49,13 @@ uint16_t crc16(const uint8_t *data, size_t length)
 
 void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
 {
-    base8Array[*arrayLen] = 0;                   // Null-terminate the base8Array
     uint16_t crc = crc16(base8Array, *arrayLen); // Calculate CRC for the base8Array
 
     // Append the CRC as two bytes to the base8Array
-    base8Array[*arrayLen + 1] = crc >> 8;   // MSB
-    base8Array[*arrayLen + 2] = crc & 0xFF; // LSB
+    base8Array[*arrayLen] = crc >> 8;   // MSB
+    base8Array[*arrayLen + 1] = crc & 0xFF; // LSB
 
-    *arrayLen += 2; // Update the array length to reflect the addition of the CRC
+    *arrayLen += 1; // Update the array length to reflect the addition of the CRC
 }
 
 int getChecksum(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAsTerminatingZero)
@@ -309,3 +308,25 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
     return ((uint32_t)(time_us_64() - bootTimestamp) / 1000);
 }
 
+// Creates and pushes a log to EEPROM.
+void pushLogToEeprom(struct deviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
+{
+    uint8_t logArray[EEPROM_ARR_LENGTH];
+    int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
+    enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
+    updateUnusedLogIndex(pillDispenserStatusStruct);
+}
+
+// Updates unusedLogIndex to the next available log.
+void updateUnusedLogIndex(struct deviceStatus *pillDispenserStatusStruct)
+{
+    if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS)
+    {
+        pillDispenserStatusStruct->unusedLogIndex++;
+    }
+    else
+    {
+        zeroAllLogs();
+        pillDispenserStatusStruct->unusedLogIndex = 0;
+    }
+}
