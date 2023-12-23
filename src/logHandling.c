@@ -235,12 +235,8 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
 // updates status to Eeprom and watchdog.
 void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
-    watchdog_hw->scratch[0] = ptrToStruct->pillDispenseState;
-    watchdog_hw->scratch[1] = ptrToStruct->rebootStatusCode;
-    watchdog_hw->scratch[2] = ptrToStruct->prevCalibStepCount;
-
     uint8_t array[EEPROM_ARR_LENGTH];
-    int arrayLen = createPillDispenserStatusLogArray(array, pillDispenseState, rebootStatusCode, prevCalibStepCount);
+    int arrayLen = createPillDispenserStatusLogArray(array, ptrToStruct->pillDispenseState, ptrToStruct->rebootStatusCode, ptrToStruct->prevCalibStepCount);
     enterLogToEeprom(array, &arrayLen, REBOOT_STATUS_ADDR);
 }
 
