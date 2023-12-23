@@ -56,7 +56,7 @@ int main()
     uint8_t data[EEPROM_ARR_LENGTH];
     uint64_t time = time_us_64();
     DeviceStatus devStatus;
-    reboot_sequence(&devStatus, watchdog_caused_reboot(), time);
+    reboot_sequence(&devStatus, time);
 
     while (true){
         watchdog_update();

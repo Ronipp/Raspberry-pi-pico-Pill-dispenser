@@ -117,40 +117,26 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen, bool flagArrayLenAs
     }
 }
 
-void reboot_sequence(struct DeviceStatus *ptrToStruct, const bool readWatchdogStatus, const uint64_t bootTimestamp)
+void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimestamp)
 {
-    // Read previous status from Eeprom and watchdog.
-    if (readPillDispenserStatus(ptrToStruct, readWatchdogStatus) == false)
+    // Read previous status from Eeprom
+    if (readPillDispenserStatus(ptrToStruct) == false)
     {
+        printf("reboot_sequence(): Failed to read pill dispenser status\n");
         ptrToStruct->pillDispenseState = 0;
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
     }
 
-    // Finish whatever the device was doing if rebootStatusCode is not 0.
-    // TODO: this may or may not be moved out of this function.
-    if (ptrToStruct->rebootStatusCode != 0)
-    {
-        switch (ptrToStruct->rebootStatusCode)
-        {
-        case 1:
-            // TODO: add code when codes are defined.
-            break;
-
-        default:
-            break;
-        }
-    }
-
     // Find the first available log, emties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
+    printf("Unused log index: %d\n", ptrToStruct->unusedLogIndex);
 
     // Write reboot cause to log if applicable.
     uint8_t logArray[EEPROM_ARR_LENGTH];
     int arrayLen = createLogArray(logArray, 3, getTimestampSinceBoot(bootTimestamp));
-    if (readWatchdogStatus == true) // watchdog caused reboot.
+    if (watchdog_caused_reboot() == true) // watchdog caused reboot.
     {
-
         enterLogToEeprom(logArray, &arrayLen, (ptrToStruct->unusedLogIndex * LOG_SIZE));
     }
 
@@ -175,7 +161,7 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
         return false; // Array too long or too short to be valid
     }
 
-    /*
+    printf("enterLogToEeprom(): Entering log to EEPROM\n");
     printf("array: ");
     for (int i = 0; i <= *arrayLen; i++)
     {
@@ -184,7 +170,7 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     printf("\n");
 
     printf("arrayLen: %d\n", *arrayLen);;
-    */
+
 
     // Write the array to EEPROM
     eeprom_write_page(logAddr, crcAppendedArray, *arrayLen);
@@ -232,7 +218,7 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
     return 4;
 }
 
-// updates status to Eeprom and watchdog.
+// updates status to Eeprom
 void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
     uint8_t array[EEPROM_ARR_LENGTH];
@@ -240,41 +226,34 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
     enterLogToEeprom(array, &arrayLen, REBOOT_STATUS_ADDR);
 }
 
-// reads previous status from Eeprom and watchdog.
+// reads previous status from Eeprom.
 // returns false if eeprom CRC check fails, true otherwise.
-bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct, const bool readWatchdogStatus)
+bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
     bool eepromReadSuccess = true;
-    if (readWatchdogStatus == true)
+
+    bool eepromReadSuccess = false;
+    uint8_t valuesRead[EEPROM_ARR_LENGTH];
+
+    // Read EEPROM values into the array.
+    eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
+
+    // Verify data integrity.
+    int len = EEPROM_ARR_LENGTH;
+    if (verifyDataIntegrity(valuesRead, &len, true) == true)
     {
-        ptrToStruct->pillDispenseState = watchdog_hw->scratch[0];
-        ptrToStruct->rebootStatusCode = watchdog_hw->scratch[1];
-        ptrToStruct->prevCalibStepCount = watchdog_hw->scratch[2];
+        // Extract and assign values from the array to the struct fields.
+        ptrToStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
+        ptrToStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
+        ptrToStruct->prevCalibStepCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
+        ptrToStruct->prevCalibStepCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
     }
     else
     {
-        bool eepromReadSuccess = false;
-        uint8_t valuesRead[EEPROM_ARR_LENGTH];
-
-        // Read EEPROM values into the array.
-        eeprom_read_page(64, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
-
-        // Verify data integrity.
-        int len = EEPROM_ARR_LENGTH;
-        if (verifyDataIntegrity(valuesRead, &len, true) == true)
-        {
-            // Extract and assign values from the array to the struct fields.
-            ptrToStruct->pillDispenseState = valuesRead[PILL_DISPENSE_STATE];
-            ptrToStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
-            ptrToStruct->prevCalibStepCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
-            ptrToStruct->prevCalibStepCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
-        }
-        else
-        {
-            printf("readPillDispenserStatus(): Failed to verify data integrity\n");
-            eepromReadSuccess = false; // Data integrity verification failed
-        }
+        printf("readPillDispenserStatus(): Failed to verify data integrity\n");
+        eepromReadSuccess = false; // Data integrity verification failed
     }
+
     return eepromReadSuccess;
 }
 
