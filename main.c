@@ -70,7 +70,7 @@ int main()
 
     const uint64_t bootTime = time_us_64();
     DeviceStatus devStatus;
-    reboot_sequence(&devStatus, watchdog_caused_reboot(), bootTime);
+    reboot_sequence(&devStatus, bootTime);
 
     while (1) {
         state_machine_update_time(&sm);
