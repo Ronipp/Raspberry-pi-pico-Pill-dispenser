@@ -24,11 +24,11 @@
 #define MAX_LOGS 32
 
 const char *rebootStatusCodes[] = {
-    "Boot",                                                     // 1                                       
-    "Button press",                                             // 2
-    "Watchdog caused reboot.",                                  // 3
-    "Kremlins in the code",                                     // 4
-    "Blood for the blood god, skulls for the skull throne."};   // 5
+    "Boot",                                                   // 1
+    "Button press",                                           // 2
+    "Watchdog caused reboot.",                                // 3
+    "Kremlins in the code",                                   // 4
+    "Blood for the blood god, skulls for the skull throne."}; // 5
 
 // TODO: UPDATE FUNCTION COMMENTS!!!!!!!!!!!!!!!!!!!!
 
@@ -52,7 +52,7 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen)
     uint16_t crc = crc16(base8Array, *arrayLen); // Calculate CRC for the base8Array
 
     // Append the CRC as two bytes to the base8Array
-    base8Array[*arrayLen] = crc >> 8;   // MSB
+    base8Array[*arrayLen] = crc >> 8;       // MSB
     base8Array[*arrayLen + 1] = crc & 0xFF; // LSB
 
     *arrayLen += 1; // Update the array length to reflect the addition of the CRC
@@ -150,7 +150,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const bool readWatchdogSt
     int arrayLen = createLogArray(logArray, 3, getTimestampSinceBoot(bootTimestamp));
     if (readWatchdogStatus == true) // watchdog caused reboot.
     {
-        
+
         enterLogToEeprom(logArray, &arrayLen, (ptrToStruct->unusedLogIndex * LOG_SIZE));
     }
 
@@ -171,7 +171,8 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     // Validate array length
     if (*arrayLen < MIN_LOG_LEN || *arrayLen > MAX_LOG_LEN)
     {
-        printf("enterLogToEeprom(): Arraylen is invalid\n") return false; // Array too long or too short to be valid
+        printf("enterLogToEeprom(): Arraylen is invalid\n");
+        return false; // Array too long or too short to be valid
     }
 
     /*
