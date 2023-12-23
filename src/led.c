@@ -63,9 +63,10 @@ void led_wait_toggle(uint32_t time) {
     led_toggle();
 }
 
-void led_error_toggle(uint32_t time) {
-    if (!led_timer(time, ERROR_TOGGLE_DELAY_MS)) return; // do nothing if its not time to do something
+bool led_error_toggle(uint32_t time) {
+    if (!led_timer(time, ERROR_TOGGLE_DELAY_MS)) return false; // do nothing if its not time to do something
     led_toggle();
+    return true;
 }
 
 static uint8_t stage = 0;
