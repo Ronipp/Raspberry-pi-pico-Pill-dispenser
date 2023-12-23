@@ -235,6 +235,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
 
     // Read EEPROM values into the array.
+    printf("readPillDispenserStatus(): Reading EEPROM values\n");
     eeprom_read_page(REBOOT_STATUS_ADDR, valuesRead, EEPROM_ARR_LENGTH); // TODO: address is hardcoded, rework later.
     printf("readPillDispenserStatus(): EEPROM values read\n");
 
