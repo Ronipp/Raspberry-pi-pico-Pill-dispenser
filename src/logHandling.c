@@ -126,7 +126,7 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
     memcpy(crcAppendedArray, base8Array, *arrayLen);
     appendCrcToBase8Array(crcAppendedArray, arrayLen);
 
-    printf("enterLogToEeprom(): Entering log to EEPROM\n");
+    printf("enterLogToEeprom(): Entering log to EEPROM addr: %d\n", logAddr);
     printf("array: ");
     for (int i = 0; i < *arrayLen; i++)
     {
@@ -144,7 +144,8 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 // sets the first byte of every log to 0 indicating that it is not in use.
 void zeroAllLogs()
 {
-    // printf("Clearing all logs\n");
+    printf("Clearing all logs\n");
+
     int count = 0;
     uint16_t logAddr = 0;
 
@@ -155,10 +156,7 @@ void zeroAllLogs()
         count++;
     }
 
-    printf("printing all logs\n");
-    printValidLogs();
-
-    // printf("Logs cleared\n");
+    printf("Logs cleared\n");
 }
 
 // Fills a log array from the given message code and timestamp.
@@ -323,7 +321,7 @@ void printValidLogs()
             uint8_t messageCode = logData[1];
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
 
-            printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, i*LOG_SIZE, rebootStatusCodes[messageCode], timestamp);
+            printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, logAddr, rebootStatusCodes[messageCode], timestamp);
         }
     }
 }
