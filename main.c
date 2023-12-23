@@ -12,6 +12,7 @@
 #include "led.h"
 #include <time.h>
 #include "stdlib.h"
+#include "hardware/watchdog.h"
 
 #include "hardware/pio.h"
 
@@ -55,7 +56,7 @@ int main()
     uint8_t data[EEPROM_ARR_LENGTH];
     uint64_t time = time_us_64();
     deviceStatus devStatus;
-    reboot_sequence(&devStatus, watchdog_caused_reboot(), time);
+    reboot_sequence(&devStatus, watchdog_caused_reboot());
 
     while (true){
         watchdog_update();
