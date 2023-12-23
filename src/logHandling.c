@@ -92,6 +92,7 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
 
 void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimestamp)
 {
+    printf("reboot_sequence(): Reboot sequence started\n");
     // Read previous status from Eeprom
     if (readPillDispenserStatus(ptrToStruct) == false)
     {
@@ -100,6 +101,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         ptrToStruct->prevCalibStepCount = 0;
     }
 
+    printf("reboot_sequence(): finding first available log\n");
     // Find the first available log, emties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
 
@@ -233,6 +235,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 // Finds the first available log, empties all logs if all are full.
 int findFirstAvailableLog()
 {
+    printf("findFirstAvailableLog(): Finding first available log\n");
     int count = 0;
     uint16_t logAddr = 0;
 
@@ -241,6 +244,7 @@ int findFirstAvailableLog()
     {
         if (eeprom_read_byte(logAddr) == 0)
         {
+            printf("findFirstAvailableLog(): First available log: %d\n", logAddr);
             return logAddr;
         }
         logAddr += LOG_SIZE;
@@ -248,6 +252,8 @@ int findFirstAvailableLog()
     }
 
     zeroAllLogs(); // Empry all logs
+    printf("findFirstAvailableLog(): All logs full, clearing all logs\n");
+    printf("findFirstAvailableLog(): First available log: 0\n");
     return 0;
 }
 
@@ -260,7 +266,7 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 // Creates and pushes a log to EEPROM.
 void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
 {
-    uint8_t logArray[LOG_ARR_LEN];
+    uint8_t logArray[LOG_LEN];
     int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
 
     printf("pushLogToEeprom(): Pushing log to EEPROM\n");
@@ -269,9 +275,6 @@ void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int message
     printf("Log to be pushed: %d\n", messageCode);
 
     enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
-    updateUnusedLogIndex(pillDispenserStatusStruct);
-    enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
-
     updateUnusedLogIndex(pillDispenserStatusStruct);
 
     printf("pushLogToEeprom(): Log pushed to EEPROM\n");
