@@ -294,3 +294,28 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
         pillDispenserStatusStruct->unusedLogIndex = 0;
     }
 }
+
+// Prints all the valid logs stored on the EEPROM.
+void printValidLogs()
+{
+    printf("printValidLogs(): Printing valid logs\n");
+    printf("\n\n\n");
+
+    for (int i = 0; i < MAX_LOGS; i++)
+    {
+        uint16_t logAddr = i * LOG_SIZE;
+        uint8_t logData[LOG_LEN];
+
+        // Read log data from EEPROM
+        eeprom_read_page(logAddr, logData, LOG_LEN);
+
+        // Check if the log is valid
+        if (logData[0] != 0)
+        {
+            uint8_t messageCode = logData[1];
+            uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
+
+            printf("Log %d: Message: %s, Timestamp: %u\n", i, rebootStatusCodes[messageCode], timestamp);
+        }
+    }
+}

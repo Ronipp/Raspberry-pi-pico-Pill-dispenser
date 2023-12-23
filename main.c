@@ -66,6 +66,8 @@ int main()
 
     updatePillDispenserStatus(&devStatus);
 
+    printValidLogs();
+
     watchdog_enable(10000, true);
     while (true){
         watchdog_update();
