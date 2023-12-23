@@ -154,6 +154,10 @@ void zeroAllLogs()
         logAddr += LOG_SIZE;
         count++;
     }
+
+    printf("printing all logs\n");
+    printValidLogs();
+
     // printf("Logs cleared\n");
 }
 
