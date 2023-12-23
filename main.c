@@ -59,6 +59,11 @@ int main()
     printf("watchdog caused reboot: %d\n", watchdog_caused_reboot());
     printf("Reboot seq start\n");
     reboot_sequence(&devStatus, time);
+
+    devStatus.prevCalibStepCount = 4000;
+    devStatus.pillDispenseState = 1;
+    devStatus.rebootStatusCode = 0;
+
     updatePillDispenserStatus(&devStatus);
 
     watchdog_enable(10000, true);

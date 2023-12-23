@@ -7,11 +7,10 @@
 #include "string.h"
 #include "../lib/logHandling.h"
 
-#define LOG_LEN 6 // Does not include CRC
+#define LOG_LEN 6               // Does not include CRC
 #define LOG_ARR_LEN LOG_LEN + 2 // Includes CRC
 
-
-#define DISPENSER_STATE_LEN 4 // Does not include CRC
+#define DISPENSER_STATE_LEN 4                           // Does not include CRC
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + 2 // Includes CRC
 #define PILL_DISPENSE_STATE 0
 #define REBOOT_STATUS_CODE 1
@@ -129,7 +128,7 @@ bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 
     printf("enterLogToEeprom(): Entering log to EEPROM\n");
     printf("array: ");
-    for (int i = 0; i <= *arrayLen; i++)
+    for (int i = 0; i < *arrayLen; i++)
     {
         printf("%d ", crcAppendedArray[i]);
     }
@@ -265,8 +264,19 @@ void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int message
 {
     uint8_t logArray[LOG_ARR_LEN];
     int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
+
+    printf("pushLogToEeprom(): Pushing log to EEPROM\n");
+    printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    printf("Log to be pushed: %d\n", messageCode);
+
     enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
     updateUnusedLogIndex(pillDispenserStatusStruct);
+    enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
+
+    updateUnusedLogIndex(pillDispenserStatusStruct);
+
+    printf("pushLogToEeprom(): Log pushed to EEPROM\n");
+    printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
 }
 
 // Updates unusedLogIndex to the next available log.
