@@ -244,8 +244,8 @@ int findFirstAvailableLog()
     {
         if (eeprom_read_byte(logAddr) == 0)
         {
-            printf("findFirstAvailableLog(): First available log: %d\n", logAddr);
-            return logAddr;
+            printf("findFirstAvailableLog(): First available log: %d\n", count);
+            return count;
         }
         logAddr += LOG_SIZE;
         count++;
