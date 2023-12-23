@@ -231,8 +231,6 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 {
     bool eepromReadSuccess = true;
-
-    bool eepromReadSuccess = false;
     uint8_t valuesRead[EEPROM_ARR_LENGTH];
 
     // Read EEPROM values into the array.
