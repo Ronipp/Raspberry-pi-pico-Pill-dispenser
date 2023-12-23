@@ -12,7 +12,6 @@ typedef struct DeviceStatus
     int unusedLogIndex; // index of log the program will use.
 } DeviceStatus;
 
-
 uint16_t crc16(const uint8_t *data, size_t length);
 void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int *arrayLen);
@@ -28,5 +27,6 @@ int findFirstAvailableLog();
 uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
 void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp);
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
+void printValidLogs();
 
 #endif
