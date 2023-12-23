@@ -51,7 +51,7 @@ int main()
 
     stdio_init_all();
 
-    watchdog_enable(4294967290, true);
+
 
     uint8_t data[EEPROM_ARR_LENGTH];
     uint64_t time = time_us_64();
@@ -59,7 +59,8 @@ int main()
     printf("watchdog caused reboot: %d\n", watchdog_caused_reboot());
     printf("Reboot seq start\n");
     reboot_sequence(&devStatus, time);
-
+    
+    watchdog_enable(4294967290, true);
     while (true){
         watchdog_update();
     }
