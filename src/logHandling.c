@@ -267,6 +267,7 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
 {
     uint8_t logArray[LOG_LEN];
+    printf("Timestamp since boot: %u\n", getTimestampSinceBoot(bootTimestamp));
     int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
 
     printf("pushLogToEeprom(): Pushing log to EEPROM\n");
