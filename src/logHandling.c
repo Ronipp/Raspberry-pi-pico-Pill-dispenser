@@ -268,6 +268,7 @@ void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int message
 {
     uint8_t logArray[LOG_LEN];
     int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
+    appendCrcToBase8Array(logArray, &arrayLen);
 
     printf("pushLogToEeprom(): Pushing log to EEPROM\n");
     printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
