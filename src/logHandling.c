@@ -213,7 +213,7 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
 
     // Verify data integrity.
     int len = DISPENSER_STATE_ARR_LEN;
-    if (verifyDataIntegrity(valuesRead, &len, true) == true)
+    if (verifyDataIntegrity(valuesRead, &len) == true)
     {
         printf("readPillDispenserStatus(): Data integrity verified\n");
         // Extract and assign values from the array to the struct fields.
