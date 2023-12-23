@@ -58,16 +58,16 @@
 - **Value Range**: 0 to 12 (up to 255)
     - 0: Device was idle pre-boot
     - 1: Watchdog caused boot
-    - 2: Dispenser attempting to dispense pill 1
-    - 3: Dispenser attempting to dispense pill 2
-    - 4: Dispenser attempting to dispense pill 3
-    - 5: Dispenser attempting to dispense pill 4
-    - 6: Dispenser attempting to dispense pill 5
-    - 7: Dispenser attempting to dispense pill 6
-    - 8: Dispenser attempting to dispense pill 7
-    - 9: Dispenser rotating to home position
-    - 10: Dispenser doing calibration
-    - 11: Dispenser doing half calibration
+    - 2: Dispenser was attempting to dispense pill 1
+    - 3: Dispenser was attempting to dispense pill 2
+    - 4: Dispenser was attempting to dispense pill 3
+    - 5: Dispenser was attempting to dispense pill 4
+    - 6: Dispenser was attempting to dispense pill 5
+    - 7: Dispenser was attempting to dispense pill 6
+    - 8: Dispenser was attempting to dispense pill 7
+    - 9: Dispenser was rotating to home position
+    - 10: Dispenser was doing calibration
+    - 11: Dispenser was doing half calibration
 
 ### Bytes 2 and 3: `prevCalibStepCount`
 - **Purpose**: Stores the previous calibration step count.
