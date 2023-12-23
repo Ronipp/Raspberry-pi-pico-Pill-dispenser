@@ -65,14 +65,14 @@ int getChecksum(uint8_t *base8Array, int *arrayLen)
 {
     printf("getChecksum(): Calculating checksum\n");
     printf("base8Array: ");
-    for (int i = 0; i <= &arrayLen + 2; i++)
+    for (int i = 0; i <= *arrayLen + 2; i++)
     {
         printf("%d ", base8Array[i]);
     }
     printf("\n");
 
     // Calculate and return the CRC as the checksum
-    return crc16(base8Array, &arrayLen + 2);
+    return crc16(base8Array, *arrayLen + 2);
 }
 
 // Uses CRC to verify the integrity of the given array.
