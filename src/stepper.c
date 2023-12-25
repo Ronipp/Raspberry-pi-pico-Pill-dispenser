@@ -300,10 +300,10 @@ static void half_calibration_handler(void) {
             if (dispensed_pills != 0) {
                 stepper_turn_steps(tmp_ctx, (dispensed_pills * tmp_ctx->step_max / 8) - tmp_ctx->step_counter);
             }
-        tmp_ctx->stepper_calibrated = true;
-        tmp_ctx->stepper_calibrating = false;
-        gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-        gpio_remove_raw_irq_handler(tmp_ctx->opto_fork_pin, half_calibration_handler);
+            tmp_ctx->stepper_calibrated = true;
+            tmp_ctx->stepper_calibrating = false;
+            gpio_set_irq_enabled(tmp_ctx->opto_fork_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+            gpio_remove_raw_irq_handler(tmp_ctx->opto_fork_pin, half_calibration_handler);
         } else {
             pio_sm_set_enabled(tmp_ctx->pio_instance, tmp_ctx->state_machine, true);
         }
@@ -322,9 +322,9 @@ void stepper_half_calibrate(stepper_ctx *ctx, uint16_t max_steps, uint16_t edge_
     ctx->stepper_calibrated = false;
     ctx->stepper_calibrating = true;
 
-    gpio_set_irq_enabled(ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
-    irq_set_enabled(IO_IRQ_BANK0, true);
     gpio_add_raw_irq_handler_with_order_priority(ctx->opto_fork_pin, half_calibration_handler, PICO_HIGHEST_IRQ_PRIORITY);
+    gpio_set_irq_enabled(ctx->opto_fork_pin, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
+    if (!irq_is_enabled(IO_IRQ_BANK0)) irq_set_enabled(IO_IRQ_BANK0, true);
 
     stepper_set_direction(ctx, STEPPER_ANTICLOCKWISE);
     stepper_set_speed(ctx, RPM_MAX);

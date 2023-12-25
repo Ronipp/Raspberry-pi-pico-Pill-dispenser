@@ -26,7 +26,7 @@ state_machine statemachine_get(uint pills_dispensed, uint pills_dispensed_with_e
     state_machine sm;
     sm.pills_dropped = pills_dispensed;
     sm.pills_error = pills_dispensed_with_error;
-    sm.state = (pills_dispensed == 0) ? CALIBRATE : HALF_CALIBRATE;
+    sm.state = ((pills_dispensed + pills_dispensed_with_error) == 0) ? CALIBRATE : HALF_CALIBRATE;
     sm.time_ms = to_ms_since_boot(get_absolute_time());
     sm.time_drop_started_ms = 0;
     sm.error_blink_counter = 0;

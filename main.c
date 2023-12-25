@@ -28,7 +28,7 @@
 #define STEPPER_SPEED_RPM 10
 
 #define PILL_DROP_DELAY_MS 5000
-#define PILL_NOT_DROPPED_DELAY_MS 5000
+#define PILL_NOT_DROPPED_DELAY_MS 600
 
 #define ERROR_BLINK_TIMES 5
 #define MAX_PILLS 7
@@ -90,6 +90,10 @@ int main()
 
     //STATE MACHINE
     state_machine sm = statemachine_get(0, 0); // inits statemachine, pills dropped determines the first state.
+    if (sm.state == HALF_CALIBRATE) {
+        stepper_half_calibrate(&step_ctx, 4095, 315, 2); // start half calibration if its prudent to do so
+        sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
+    }
 
     while (1) {
         state_machine_update_time(&sm);
@@ -99,13 +103,12 @@ int main()
             step_ctx.stepper_calibrated = false; // set stepper calibrated status to false.
             led_wait_toggle(sm.time_ms); // toggling all leds on and off while waiting for a button press.
             if (calib_btn_pressed) { // if button is pressed
+                led_off(); // leds off
                 stepper_calibrate(&step_ctx); // calibrate :D
                 sm.pills_dropped = 0; // reset pill dropping count.
+                sm.pills_error = 0; // reset error count.
                 sm.state = WAIT_FOR_DISPENSE; // when calibration is done move to next state.
             }
-            break;
-        case HALF_CALIBRATE:
-            /* code */
             break;
         case WAIT_FOR_DISPENSE:
             if (stepper_is_running(&step_ctx)) { // if calibrating
@@ -122,7 +125,7 @@ int main()
             if ((sm.pills_dropped + sm.pills_error) >= MAX_PILLS) { // if maximum number of pills dropped (or didnt drop was but supposed to)
                     sm.state = CALIBRATE; // set state to calibration. (start all over again)
             } else if ((sm.time_ms - sm.time_drop_started_ms) > PILL_DROP_DELAY_MS) { // if enough time has passed from last pill drop.
-                stepper_turn_steps(&step_ctx, step_ctx.step_max / MAX_TURNS); // turn stepper eighth of a full turn.
+                stepper_turn_steps(&step_ctx, stepper_get_max_steps(&step_ctx) / MAX_TURNS); // turn stepper eighth of a full turn.
                 sm.time_drop_started_ms = sm.time_ms; // set the drop starting time to current time.
                 dropped = false; // reset dropped status
                 sm.state = CHECK_IF_DISPENSED; // go to check if pill was dispensed correctly.
@@ -159,6 +162,7 @@ int main()
             break;
         default:
             // should never get here maybe log unexpected error?
+            sm.state = CALIBRATE;
             break;
         } 
     }
