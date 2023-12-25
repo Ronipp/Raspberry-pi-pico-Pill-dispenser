@@ -16,7 +16,6 @@
     .define public irq_num 0
 
     start:
-        irq wait irq_num    ; set irq to tell c program we are done running.
         pull                ; pull content from rxfifo, wait if empty
         out x, 16           ; shift 16 LSB to x register, this is the step count.
         out pc, 16          ; shift 16 MSB to pc, this is where the program should start.
@@ -75,7 +74,6 @@
 
 
     start:
-        irq wait irq_num
         pull
         out x, 16
         out pc, 16
