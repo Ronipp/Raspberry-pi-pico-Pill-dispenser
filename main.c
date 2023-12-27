@@ -93,6 +93,7 @@ int main()
     //STATE MACHINE
     state_machine sm = statemachine_get(0, 0); // inits statemachine, pills dropped determines the first state.
     if (sm.state == HALF_CALIBRATE) {
+        // half calibrate takes: max steps, hole width, number of pills dispensed (how many time stepper has turned)
         stepper_half_calibrate(&step_ctx, 4095, 315, 2); // start half calibration if its prudent to do so
         sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
     }
