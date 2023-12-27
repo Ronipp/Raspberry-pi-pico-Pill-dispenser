@@ -4,6 +4,25 @@
 extern const char *logMessages[];
 extern const char *pillDispenserStatus[];
 
+typedef enum {
+    BOOTFINISHED,
+    BUTTON_PRESS,
+    WATCHDOG_REBOOT,
+    DISPENSE1,
+    DISPENSE2,
+    DISPENSE3,
+    DISPENSE4,
+    DISPENSE5,
+    DISPENSE6,
+    DISPENSE7,
+    PILL_DISPENSED,
+    PILL_ERROR,
+    DISPENSER_EMPTY,
+    HALF_CALIBRATION,
+    FULL_CALIBRATION,
+    CALIBRATION_FINISHED,
+} log_number;
+
 typedef struct DeviceStatus
 {
     uint8_t pillDispenseState;
