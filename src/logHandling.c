@@ -23,25 +23,42 @@
 #define LOG_SIZE 64
 #define MAX_LOGS 32
 
-// TODO: Create enums for these
+typedef enum {
+    BOOTFINISHED,
+    BUTTON_PRESS,
+    WATCHDOG_REBOOT,
+    DISPENSE1,
+    DISPENSE2,
+    DISPENSE3,
+    DISPENSE4,
+    DISPENSE5,
+    DISPENSE6,
+    DISPENSE7,
+    PILL_DISPENSED,
+    PILL_ERROR,
+    DISPENSER_EMPTY,
+    HALF_CALIBRATION,
+    FULL_CALIBRATION,
+    CALIBRATION_FINISHED,
+} log_number;
+
 const char *logMessages[] = {
-    "Boot Finished",          // 0
-    "Button press",           // 1
-    "Watchdog caused reboot", // 2
-    "Dispensing pill 1",      // 4
-    "Dispensing pill 2",      // 5
-    "Dispensing pill 3",      // 6
-    "Dispensing pill 4",      // 7
-    "Dispensing pill 5",      // 8
-    "Dispensing pill 6",      // 9
-    "Dispensing pill 7",      // 10
-    "Pill dispensed",         // 11
-    "Pill drop not detected", // 12
-    "Pill dispenser is empty",// 14
-    "Doing half calibration", // 15
-    "Doing full calibration", // 16
-    "Calibration finished"    // 17
-};
+    "Boot Finished",          // 1
+    "Button press",           // 2
+    "Watchdog caused reboot", // 3
+    "Dispensing pill 1",
+    "Dispensing pill 2",
+    "Dispensing pill 3",
+    "Dispensing pill 4",
+    "Dispensing pill 5",
+    "Dispensing pill 6",
+    "Dispensing pill 7",
+    "pill dispensed",
+    "pill drop not detected",
+    "Pill dispenser is empty",
+    "Doing half calibration",
+    "Doing full calibration",
+    "Calibration finished"};
 
 // TODO: UPDATE FUNCTION COMMENTS!!!!!!!!!!!!!!!!!!!!
 
