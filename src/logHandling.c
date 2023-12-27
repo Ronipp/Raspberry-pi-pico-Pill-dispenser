@@ -23,25 +23,27 @@
 #define LOG_SIZE 64
 #define MAX_LOGS 32
 
+// TODO: Create enums for these
 const char *logMessages[] = {
-    "Boot Finished",          // 1
-    "Button press",           // 2
-    "Watchdog caused reboot", // 3
-    "Idle",
-    "Dispensing pill 1",
-    "Dispensing pill 2",
-    "Dispensing pill 3",
-    "Dispensing pill 4",
-    "Dispensing pill 5",
-    "Dispensing pill 6",
-    "Dispensing pill 7",
-    "pill dispensed",
-    "pill drop not detected",
-    "Rotating to home position",
-    "Pill dispenser is empty",
-    "Doing half calibration",
-    "Doing full calibration",
-    "Calibration finished"};
+    "Boot Finished",          // 0
+    "Button press",           // 1
+    "Watchdog caused reboot", // 2
+    "Idle",                   // 3 TODO: remove
+    "Dispensing pill 1",      // 4
+    "Dispensing pill 2",      // 5
+    "Dispensing pill 3",      // 6
+    "Dispensing pill 4",      // 7
+    "Dispensing pill 5",      // 8
+    "Dispensing pill 6",      // 9
+    "Dispensing pill 7",      // 10
+    "Pill dispensed",         // 11
+    "Pill drop not detected", // 12
+    "Rotating to home position", // 13
+    "Pill dispenser is empty",// 14
+    "Doing half calibration", // 15
+    "Doing full calibration", // 16
+    "Calibration finished"    // 17
+};
 
 // TODO: UPDATE FUNCTION COMMENTS!!!!!!!!!!!!!!!!!!!!
 
@@ -315,6 +317,7 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 }
 
 // Prints all the valid logs stored on the EEPROM.
+// TODO: needs to be updated to include LoRaWAN.
 void printValidLogs()
 {
     // printf("printValidLogs(): Printing valid logs\n");
@@ -335,6 +338,8 @@ void printValidLogs()
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
 
             // printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, logAddr, logMessages[messageCode], timestamp);
+            printf("%s %u seconds after last boot.\n", logMessages[messageCode], timestamp);
         }
     }
 }
+

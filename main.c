@@ -66,7 +66,7 @@ int main()
 
 
     //STATE MACHINE
-    state_machine sm = statemachine_get(0);
+    state_machine sm = statemachine_get(0); // 
 
     const uint64_t bootTime = time_us_64();
     DeviceStatus devStatus;
