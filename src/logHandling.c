@@ -28,7 +28,6 @@ const char *logMessages[] = {
     "Boot Finished",          // 0
     "Button press",           // 1
     "Watchdog caused reboot", // 2
-    "Idle",                   // 3 TODO: remove
     "Dispensing pill 1",      // 4
     "Dispensing pill 2",      // 5
     "Dispensing pill 3",      // 6
@@ -38,7 +37,6 @@ const char *logMessages[] = {
     "Dispensing pill 7",      // 10
     "Pill dispensed",         // 11
     "Pill drop not detected", // 12
-    "Rotating to home position", // 13
     "Pill dispenser is empty",// 14
     "Doing half calibration", // 15
     "Doing full calibration", // 16
