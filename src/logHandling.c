@@ -25,9 +25,7 @@
 
 
 const char *logMessages[] = {
-    "Boot Finished",          // 1
-    "Button press",           // 2
-    "Watchdog caused reboot", // 3
+    "Boot Finished",
     "Dispensing pill 1",
     "Dispensing pill 2",
     "Dispensing pill 3",
@@ -35,6 +33,8 @@ const char *logMessages[] = {
     "Dispensing pill 5",
     "Dispensing pill 6",
     "Dispensing pill 7",
+    "Button press",
+    "Watchdog caused reboot",
     "pill dispensed",
     "pill drop not detected",
     "Pill dispenser is empty",
@@ -108,6 +108,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     // Read previous status from Eeprom
     if (readPillDispenserStatus(ptrToStruct) == false)
     {
+        // TODO: Create eeprom log for failed status read.
         ptrToStruct->pillDispenseState = 0;
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;

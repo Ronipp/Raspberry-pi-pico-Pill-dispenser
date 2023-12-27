@@ -6,8 +6,6 @@ extern const char *pillDispenserStatus[];
 
 typedef enum {
     BOOTFINISHED,
-    BUTTON_PRESS,
-    WATCHDOG_REBOOT,
     DISPENSE1,
     DISPENSE2,
     DISPENSE3,
@@ -15,6 +13,8 @@ typedef enum {
     DISPENSE5,
     DISPENSE6,
     DISPENSE7,
+    BUTTON_PRESS,
+    WATCHDOG_REBOOT,
     PILL_DISPENSED,
     PILL_ERROR,
     DISPENSER_EMPTY,
