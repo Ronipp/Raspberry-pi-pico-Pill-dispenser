@@ -110,8 +110,8 @@ int main()
             step_ctx.stepper_calibrated = false; // set stepper calibrated status to false.
             led_wait_toggle(sm.time_ms); // toggling all leds on and off while waiting for a button press.
             if (calib_btn_pressed) { // if button is pressed
-                led_off(); // leds off
                 stepper_calibrate(&step_ctx); // calibrate :D
+                led_off(); // leds off
                 sm.pills_dropped = 0; // reset pill dropping count.
                 sm.pills_error = 0; // reset error count.
                 sm.state = WAIT_FOR_DISPENSE; // when calibration is done move to next state.
