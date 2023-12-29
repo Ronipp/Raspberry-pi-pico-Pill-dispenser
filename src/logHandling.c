@@ -122,11 +122,11 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     int arrayLen = 0;
     if (watchdog_caused_reboot() == true) // watchdog caused reboot.
     {
-        pushLogToEeprom(ptrToStruct, 2, bootTimestamp);
+        pushLogToEeprom(ptrToStruct, 0, bootTimestamp);
     }
 
     // Write boot message upon completion of reboot sequence.
-    pushLogToEeprom(ptrToStruct, 0, bootTimestamp);
+    pushLogToEeprom(ptrToStruct, 1, bootTimestamp);
 }
 
 // Writes the given array to the given EEPROM address.
@@ -278,22 +278,12 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 }
 
 // Creates and pushes a log to EEPROM.
-void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
+void pushLogToEeprom(struct DeviceStatus *devstatus, log_number code, uint32_t bootTimestamp)
 {
     uint8_t logArray[LOG_LEN];
-    // printf("Timestamp since boot: %u\n", getTimestampSinceBoot(bootTimestamp));
-    int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
-
-    // printf("pushLogToEeprom(): Pushing log to EEPROM\n");
-    // printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
-    // printf("Log address: %d\n", (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
-    // printf("Log to be pushed: %d\n", messageCode);
-
-    enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
-    updateUnusedLogIndex(pillDispenserStatusStruct);
-
-    // printf("pushLogToEeprom(): Log pushed to EEPROM\n");
-    // printf("Log index: %d\n", pillDispenserStatusStruct->unusedLogIndex);
+    int arrayLen = createLogArray(logArray, code, bootTimestamp);
+    enterLogToEeprom(logArray, &arrayLen, (devstatus->unusedLogIndex * LOG_SIZE));
+    updateUnusedLogIndex(devstatus);
 }
 
 // Updates unusedLogIndex to the next available log.
@@ -316,9 +306,6 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 // Prints all the valid logs stored on the EEPROM.
 void printValidLogs()
 {
-    // printf("printValidLogs(): Printing valid logs\n");
-    // printf("\n\n\n");
-
     for (int i = 0; i < MAX_LOGS; i++)
     {
         uint16_t logAddr = i * LOG_SIZE;
@@ -332,8 +319,6 @@ void printValidLogs()
         {
             uint8_t messageCode = logData[1];
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
-
-            // printf("Log %d: log addr: %d, Message: %s, Timestamp: %u\n", i + 1, logAddr, logMessages[messageCode], timestamp);
         }
     }
 }
