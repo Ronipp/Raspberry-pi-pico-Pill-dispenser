@@ -90,17 +90,28 @@ int main()
     gpio_set_irq_enabled(PIEZO_PIN, GPIO_IRQ_EDGE_FALL, true); // irq enabled, only interested in falling edge (something hit the sensor).
 
 
+    // Reboot sequence
+    const uint64_t bootTime = time_us_64();
+    DeviceStatus devStatus;
+    reboot_sequence(&devStatus, bootTime);
+
+    state_machine sm
+    const int dispenseCodes = [DISPENSE1, DISPENSE2, DISPENSE3, DISPENSE4, DISPENSE5, DISPENSE6, DISPENSE7];
+    if (devStatus.rebootStatusCode !== devStatus.pillDispenseState && isValueInArray(devStatus.rebootStatusCode, dispenseCodes, 7) == true) {
+        sm = statemachine_get(devStatus.pillDispenseState, devStatus.rebootStatusCode);
+    }
+    else {
+        sm = statemachine_get(devStatus.pillDispenseState, devStatus.pillDispenseState);
+    }
+
     //STATE MACHINE
-    state_machine sm = statemachine_get(0, 0); // inits statemachine, pills dropped determines the first state.
     if (sm.state == HALF_CALIBRATE) {
         // half calibrate takes: max steps, hole width, number of pills dispensed (how many time stepper has turned)
         stepper_half_calibrate(&step_ctx, 4095, 315, 2); // start half calibration if its prudent to do so
         sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
     }
 
-    const uint64_t bootTime = time_us_64();
-    DeviceStatus devStatus;
-    reboot_sequence(&devStatus, bootTime);
+
 
     while (1) {
         state_machine_update_time(&sm);
