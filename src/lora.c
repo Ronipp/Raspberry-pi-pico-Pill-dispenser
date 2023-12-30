@@ -13,9 +13,9 @@ bool lora_init(uart_inst_t *uart, uint TX_pin, uint RX_pin) {
     gpio_set_function(TX_pin, GPIO_FUNC_UART);
     gpio_set_function(RX_pin, GPIO_FUNC_UART);
 
-    uart_init(uart, 9600);
+    uart_init(uart, 9600); //TODO: magic number
     uart_instance = uart;
-    char buf[20];
+    char buf[20]; //TODO: magic number(s)
     if (lora_wait()) {
         if (!lora_write("AT+MODE=LWOTAA\r\n")) return false;
         lora_read_uart(buf, 20);

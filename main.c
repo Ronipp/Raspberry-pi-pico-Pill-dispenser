@@ -71,7 +71,7 @@ int main()
 
     stdio_init_all();
     //EEPROM
-    eeprom_init_i2c(i2c0, 1000000, 5);
+    eeprom_init_i2c(i2c0, 1000000, 5); // TODO replace magic numbers
     //LORAWAN
     // lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
 
@@ -82,7 +82,7 @@ int main()
     //LEDS
     led_init(); // inits pwm for leds so we don't get blind.
     //BUTTONS
-    init_button_with_callback(BUTTON1, 2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler); // set debounced irq for buttons.
+    init_button_with_callback(BUTTON1, 2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler); // set debounced irq for buttons. //TODO: REPLACE MAGIC NUMBER
     // PIEZO SENSOR
     gpio_init(PIEZO_PIN); // enabled, func set, dir in.
     gpio_pull_up(PIEZO_PIN); // pull up
@@ -107,7 +107,7 @@ int main()
     //STATE MACHINE
     if (sm.state == HALF_CALIBRATE) {
         // half calibrate takes: max steps, hole width, number of pills dispensed (how many time stepper has turned)
-        stepper_half_calibrate(&step_ctx, 4095, 315, 2); // start half calibration if its prudent to do so
+        stepper_half_calibrate(&step_ctx, 4095, 315, 2); // start half calibration if its prudent to do so //TODO: REPLACE MAGIC NUMBERS
         sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
     }
 
