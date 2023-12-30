@@ -37,7 +37,7 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int *arrayLen);
 bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen);
 void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimestamp);
-bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
+void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
 void zeroAllLogs();
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
 int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount);
@@ -48,5 +48,6 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
 void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp);
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 void printValidLogs();
+bool isValueInArray(int value, int *array, int size);
 
 #endif
