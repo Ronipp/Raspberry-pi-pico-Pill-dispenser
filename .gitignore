@@ -2,3 +2,4 @@ build
 .vscode
 *.exe
 test.c
+lorareceive.py
