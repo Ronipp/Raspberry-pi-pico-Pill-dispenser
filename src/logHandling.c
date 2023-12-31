@@ -184,7 +184,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
             break;
         default:
             pushLogToEeprom(ptrToStruct, GREMLINS, bootTimestamp);
-            printf("There's gremlins in the code.\n")
+            printf("There's gremlins in the code.\n");
             break;
         }
         
