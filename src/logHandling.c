@@ -28,6 +28,7 @@
 
 const char *logMessages[] = {
     "Boot Finished",
+    "Watchdog caused reboot",    
     "Dispensing pill 1",
     "Dispensing pill 2",
     "Dispensing pill 3",
@@ -35,14 +36,23 @@ const char *logMessages[] = {
     "Dispensing pill 5",
     "Dispensing pill 6",
     "Dispensing pill 7",
+    "Doing half calibration",
+    "Doing full calibration",
     "Button press",
-    "Watchdog caused reboot",
     "pill dispensed",
     "pill drop not detected",
     "Pill dispenser is empty",
-    "Doing half calibration",
-    "Doing full calibration",
-    "Calibration finished"};
+    "Calibration finished",
+    "Reboot during pill 1 dispensing",
+    "Reboot during pill 2 dispensing",
+    "Reboot during pill 3 dispensing",
+    "Reboot during pill 4 dispensing",
+    "Reboot during pill 5 dispensing",
+    "Reboot during pill 6 dispensing",
+    "Reboot during pill 7 dispensing",
+    "Reboot during half calibration",
+    "Reboot during full calibration",
+    "Gremlins in the code"};
 
 uint16_t crc16(const uint8_t *data, size_t length)
 {
@@ -145,34 +155,35 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     {
         switch (ptrToStruct->rebootStatusCode)
         {
-        case DISPENSING_PILL_1:
-            pushLogToEeprom(ptrToStruct, DISPENSE1, bootTimestamp);
+        case DISPENSE1:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case DISPENSING_PILL_2:
-            pushLogToEeprom(ptrToStruct, DISPENSE2, bootTimestamp);
+        case DISPENSE2:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case DISPENSING_PILL_3:
-            pushLogToEeprom(ptrToStruct, DISPENSE3, bootTimestamp);
+        case DISPENSE3:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case DISPENSING_PILL_4:
-            pushLogToEeprom(ptrToStruct, DISPENSE4, bootTimestamp);
+        case DISPENSE4:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case DISPENSING_PILL_5:
-            pushLogToEeprom(ptrToStruct, DISPENSE5, bootTimestamp);
+        case DISPENSE5:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case DISPENSING_PILL_6:
-            pushLogToEeprom(ptrToStruct, DISPENSE6, bootTimestamp);
+        case DISPENSE6:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case DISPENSING_PILL_7:
-            pushLogToEeprom(ptrToStruct, DISPENSE7, bootTimestamp);
+        case DISPENSE7:
+            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
             break;
-        case CALIBRATING:
-            pushLogToEeprom(ptrToStruct, FULL_CALIBRATION, bootTimestamp);
+        case FULL_CALIBRATION:
+            pushLogToEeprom(ptrToStruct, FULL_CALIBRATION_ERROR, bootTimestamp);
             break;
-        case HALF_CALIBRATING:
-            pushLogToEeprom(ptrToStruct, HALF_CALIBRATION, bootTimestamp);
+        case HALF_CALIBRATION:
+            pushLogToEeprom(ptrToStruct, HALF_CALIBRATION_ERROR, bootTimestamp);
             break;
         default:
+            pushLogToEeprom(ptrToStruct, GREMLINS, bootTimestamp);
             printf("There's gremlins in the code.\n")
             break;
         }
