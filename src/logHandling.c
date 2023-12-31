@@ -139,23 +139,45 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     {
         pushLogToEeprom(ptrToStruct, WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
     }
-    /*
-    if (ptrToStruct->rebootStatusCode != 0) // If reboot status code is not 0
+
+    else if (ptrToStruct->rebootStatusCode != 0) // If reboot status code is not 0
     {
     {
         switch (ptrToStruct->rebootStatusCode)
         {
-        case :
+        case DISPENSING_PILL_1:
+            pushLogToEeprom(ptrToStruct, DISPENSE1, bootTimestamp);
             break;
-        
+        case DISPENSING_PILL_2:
+            pushLogToEeprom(ptrToStruct, DISPENSE2, bootTimestamp);
+            break;
+        case DISPENSING_PILL_3:
+            pushLogToEeprom(ptrToStruct, DISPENSE3, bootTimestamp);
+            break;
+        case DISPENSING_PILL_4:
+            pushLogToEeprom(ptrToStruct, DISPENSE4, bootTimestamp);
+            break;
+        case DISPENSING_PILL_5:
+            pushLogToEeprom(ptrToStruct, DISPENSE5, bootTimestamp);
+            break;
+        case DISPENSING_PILL_6:
+            pushLogToEeprom(ptrToStruct, DISPENSE6, bootTimestamp);
+            break;
+        case DISPENSING_PILL_7:
+            pushLogToEeprom(ptrToStruct, DISPENSE7, bootTimestamp);
+            break;
+        case CALIBRATING:
+            pushLogToEeprom(ptrToStruct, FULL_CALIBRATION, bootTimestamp);
+            break;
+        case HALF_CALIBRATING:
+            pushLogToEeprom(ptrToStruct, HALF_CALIBRATION, bootTimestamp);
+            break;
         default:
             printf("There's gremlins in the code.\n")
             break;
         }
         
     }
-    */
-    
 
     pushLogToEeprom(ptrToStruct, BOOTFINISHED, bootTimestamp); // TODO: replace magic numbers with enum values.
 }
