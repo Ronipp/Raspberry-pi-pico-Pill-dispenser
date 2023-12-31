@@ -96,7 +96,7 @@ int main()
     reboot_sequence(&devStatus, bootTime);
 
     state_machine sm;
-    const int dispenseCodes = [DISPENSE1, DISPENSE2, DISPENSE3, DISPENSE4, DISPENSE5, DISPENSE6, DISPENSE7];
+    const int dispenseCodes = {DISPENSE1, DISPENSE2, DISPENSE3, DISPENSE4, DISPENSE5, DISPENSE6, DISPENSE7};
     if (devStatus.rebootStatusCode !== devStatus.pillDispenseState && isValueInArray(devStatus.rebootStatusCode, dispenseCodes, 7) == true) {
         sm = statemachine_get(devStatus.pillDispenseState, devStatus.rebootStatusCode);
     }
