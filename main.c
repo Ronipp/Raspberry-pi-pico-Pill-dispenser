@@ -111,8 +111,8 @@ int main()
         sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
     }
 
-
-
+    pushLogToEeprom(ptrToStruct, BOOTFINISHED, bootTimestamp); // log boot finished
+    
     while (1) {
         state_machine_update_time(&sm);
         switch (sm.state) {

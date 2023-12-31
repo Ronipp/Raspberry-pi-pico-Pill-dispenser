@@ -180,8 +180,6 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
             printf("There's gremlins in the code.\n");
             break;
         }
-
-        pushLogToEeprom(ptrToStruct, BOOTFINISHED, bootTimestamp); // TODO: replace magic numbers with enum values.
     }
 }
 
