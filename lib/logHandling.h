@@ -23,6 +23,21 @@ typedef enum {
     CALIBRATION_FINISHED,
 } log_number;
 
+typedef enum {
+    IDLE,
+    WATCHDOG_CAUSED_REBOOT,
+    DISPENSING_PILL_1,
+    DISPENSING_PILL_2,
+    DISPENSING_PILL_3,
+    DISPENSING_PILL_4,
+    DISPENSING_PILL_5,
+    DISPENSING_PILL_6,
+    DISPENSING_PILL_7,
+    ROTATING_TO_HOME_POSITION,
+    CALIBRATING,
+    HALF_CALIBRATING,
+} rebootStatusCode;
+
 typedef struct DeviceStatus
 {
     uint8_t pillDispenseState;
