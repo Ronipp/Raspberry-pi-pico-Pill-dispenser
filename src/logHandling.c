@@ -6,6 +6,7 @@
 #include "stdbool.h"
 #include "string.h"
 #include "../lib/logHandling.h"
+#include "../lib/lora.h"
 
 #define LOG_LEN 6                     // Does not include CRC
 #define LOG_ARR_LEN LOG_LEN + CRC_LEN // Includes CRC
@@ -17,7 +18,7 @@
 #define REBOOT_STATUS_CODE 1
 #define PREV_CALIB_STEP_COUNT_MSB 2
 #define PREV_CALIB_STEP_COUNT_LSB 3
-#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE // 2048 + 64
+#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE
 
 #define LOG_START_ADDR 0
 #define LOG_END_ADDR 2048
@@ -50,7 +51,8 @@ const char *logMessages[] = {
     "Reboot during pill 7 dispensing",
     "Reboot during half calibration",
     "Reboot during full calibration",
-    "Gremlins in the code"};
+    "Gremlins in the code",
+    "Failed to read pill dispenser status from EEPROM"};
 
 uint16_t crc16(const uint8_t *data, size_t length)
 {
@@ -132,6 +134,9 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         ptrToStruct->pillDispenseState = 0;
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
+        ptrToStruct->unusedLogIndex = 0; // TODO: change value.
+        pushLogToEeprom(ptrToStruct, GREMLINS, bootTimestamp); //TODO: create function to combine these two functions.
+        lora_message(logMessages[GREMLINS]);
     }
 
     // Find the first available log, empties all logs if all are full.
@@ -139,10 +144,10 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
 
     // Write reboot cause to log if applicable.
     uint8_t logArray[LOG_ARR_LEN];
-    int arrayLen = 0;
     if (watchdog_caused_reboot() == true) // If watchdog caused reboot
     {
         pushLogToEeprom(ptrToStruct, WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
+        lora_message(logMessages[WATCHDOG_REBOOT]);
     }
     else if (ptrToStruct->rebootStatusCode != 0) // If reboot status code is not 0
     {
@@ -150,33 +155,43 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         {
         case DISPENSE1:
             pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE1_ERROR]);
             break;
         case DISPENSE2:
-            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            pushLogToEeprom(ptrToStruct, DISPENSE2_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE2_ERROR]);
             break;
         case DISPENSE3:
-            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            pushLogToEeprom(ptrToStruct, DISPENSE3_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE3_ERROR]);
             break;
         case DISPENSE4:
-            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            pushLogToEeprom(ptrToStruct, DISPENSE4_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE4_ERROR]);
             break;
         case DISPENSE5:
-            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            pushLogToEeprom(ptrToStruct, DISPENSE5_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE5_ERROR]);
             break;
         case DISPENSE6:
-            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            pushLogToEeprom(ptrToStruct, DISPENSE6_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE6_ERROR]);
             break;
         case DISPENSE7:
-            pushLogToEeprom(ptrToStruct, DISPENSE1_ERROR, bootTimestamp);
+            pushLogToEeprom(ptrToStruct, DISPENSE7_ERROR, bootTimestamp);
+            lora_message(logMessages[DISPENSE7_ERROR]);
             break;
         case FULL_CALIBRATION:
             pushLogToEeprom(ptrToStruct, FULL_CALIBRATION_ERROR, bootTimestamp);
+            lora_message(logMessages[FULL_CALIBRATION_ERROR]);
             break;
         case HALF_CALIBRATION:
             pushLogToEeprom(ptrToStruct, HALF_CALIBRATION_ERROR, bootTimestamp);
+            lora_message(logMessages[HALF_CALIBRATION_ERROR]);
             break;
         default:
             pushLogToEeprom(ptrToStruct, GREMLINS, bootTimestamp);
+            lora_message(logMessages[GREMLINS]);
             printf("There's gremlins in the code.\n");
             break;
         }

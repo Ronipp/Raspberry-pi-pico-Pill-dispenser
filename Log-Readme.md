@@ -36,7 +36,6 @@
     - 23: "Reboot during calibration"
     - 24: "Reboot during half-calibration"
     - 25: "Gremlins in the code"
-
     
 ### Bytes 2 to 5: `timestamp`
 - **Purpose**: Stores a 32-bit timestamp value.

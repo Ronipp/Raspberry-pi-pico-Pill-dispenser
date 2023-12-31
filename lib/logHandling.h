@@ -30,7 +30,8 @@ typedef enum {
     DISPENSE7_ERROR,
     HALF_CALIBRATION_ERROR,
     FULL_CALIBRATION_ERROR,
-    GREMLINS
+    GREMLINS,
+    DISPENSER_STATUS_READ_ERROR
 } log_number;
 
 typedef struct DeviceStatus
