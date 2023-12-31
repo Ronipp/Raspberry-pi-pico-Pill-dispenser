@@ -139,13 +139,13 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     {
         pushLogToEeprom(ptrToStruct, WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
     }
+    /*
     if (ptrToStruct->rebootStatusCode != 0) // If reboot status code is not 0
     {
     {
         switch (ptrToStruct->rebootStatusCode)
         {
         case :
-            /* code */
             break;
         
         default:
@@ -154,6 +154,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         }
         
     }
+    */
     
 
     pushLogToEeprom(ptrToStruct, BOOTFINISHED, bootTimestamp); // TODO: replace magic numbers with enum values.
