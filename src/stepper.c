@@ -35,7 +35,7 @@ static void stepper_pio_init(stepper_ctx *ctx, float div) {
 static float stepper_calculate_clkdiv(float rpm) {
     if (rpm > RPM_MAX) rpm = RPM_MAX;
     if (rpm < RPM_MIN) rpm = RPM_MIN;
-    return (SYS_CLK_KHZ * 1000) / (16000 / (((1 / rpm) * 60 * 1000) / 4096));
+    return (SYS_CLK_KHZ * 1000) / (16000 / (((1 / rpm) * 60 * 1000) / 4096)); //TODO: magic numbers?
 }
 
 stepper_ctx stepper_get_ctx(void) {

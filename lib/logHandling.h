@@ -6,8 +6,7 @@ extern const char *pillDispenserStatus[];
 
 typedef enum {
     BOOTFINISHED,
-    BUTTON_PRESS,
-    WATCHDOG_REBOOT,
+    WATCHDOG_REBOOT,    
     DISPENSE1,
     DISPENSE2,
     DISPENSE3,
@@ -15,12 +14,24 @@ typedef enum {
     DISPENSE5,
     DISPENSE6,
     DISPENSE7,
+    HALF_CALIBRATION,
+    FULL_CALIBRATION,    
+    BUTTON_PRESS,
     PILL_DISPENSED,
     PILL_ERROR,
     DISPENSER_EMPTY,
-    HALF_CALIBRATION,
-    FULL_CALIBRATION,
     CALIBRATION_FINISHED,
+    DISPENSE1_ERROR,
+    DISPENSE2_ERROR,
+    DISPENSE3_ERROR,
+    DISPENSE4_ERROR,
+    DISPENSE5_ERROR,
+    DISPENSE6_ERROR,
+    DISPENSE7_ERROR,
+    HALF_CALIBRATION_ERROR,
+    FULL_CALIBRATION_ERROR,
+    GREMLINS,
+    DISPENSER_STATUS_READ_ERROR
 } log_number;
 
 typedef struct DeviceStatus
@@ -37,7 +48,7 @@ void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int *arrayLen);
 bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen);
 void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimestamp);
-bool enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
+void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
 void zeroAllLogs();
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
 int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount);
@@ -48,5 +59,6 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
 void pushLogToEeprom(struct DeviceStatus *devstatus, log_number code, uint32_t bootTimestamp);
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 void printValidLogs();
+bool isValueInArray(int value, int *array, int size);
 
 #endif
