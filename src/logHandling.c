@@ -22,8 +22,8 @@
 
 #define LOG_START_ADDR 0
 #define LOG_END_ADDR 2048
-#define LOG_SIZE 64
-#define MAX_LOGS 32
+#define LOG_SIZE 8
+#define MAX_LOGS LOG_END_ADDR / LOG_SIZE
 
 const char *logMessages[] = {
     "Boot Finished",
@@ -405,7 +405,7 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
  */
 void printValidLogs()
 {
-    for (int i = 0; i < MAX_LOGS; i++)
+    for (int i = 0; i <= MAX_LOGS; i++)
     {
         uint16_t logAddr = i * LOG_SIZE; // Calculate the EEPROM address for the log entry
         uint8_t logData[LOG_LEN];        // Buffer to hold log data
