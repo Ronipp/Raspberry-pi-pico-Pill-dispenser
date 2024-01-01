@@ -218,13 +218,6 @@ bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
     // Read EEPROM values into the array.
     eeprom_read_page(REBOOT_STATUS_ADDR, valuesRead, DISPENSER_STATE_ARR_LEN); // TODO: address is hardcoded, rework later.
 
-    // printf("readPillDispenserStatus(): EEPROM values read\n");
-    // printf("valuesRead: ");
-    // for (int i = 0; i < DISPENSER_STATE_ARR_LEN; i++)
-    // {
-    //     printf("%d ", valuesRead[i]);
-    // }
-    // printf("\n");
 
     // Verify data integrity.
     int len = DISPENSER_STATE_ARR_LEN;
@@ -321,4 +314,27 @@ void printValidLogs()
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
         }
     }
+}
+
+
+// typedef enum {
+//     BOOTFINISHED,
+//     BUTTON_PRESS,
+//     WATCHDOG_REBOOT,
+//     DISPENSE1,
+//     DISPENSE2,
+//     DISPENSE3,
+//     DISPENSE4,
+//     DISPENSE5,
+//     DISPENSE6,
+//     DISPENSE7,
+//     PILL_DISPENSED,
+//     PILL_ERROR,
+//     DISPENSER_EMPTY,
+//     HALF_CALIBRATION,
+//     FULL_CALIBRATION,
+//     CALIBRATION_FINISHED,
+// } log_number;
+void logger_log(log_number reason) {
+    
 }
