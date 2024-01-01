@@ -111,7 +111,9 @@ int main()
         sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
     }
 
-    pushLogToEeprom(devStatus, BOOTFINISHED, bootTime); // log boot finished
+    pushLogToEeprom(&devStatus, BOOTFINISHED, bootTime); // log boot finished
+
+    bool logged = false;
     
     while (1) {
         state_machine_update_time(&sm);
@@ -123,9 +125,8 @@ int main()
             if (calib_btn_pressed) { // if button is pressed
                 stepper_calibrate(&step_ctx); // calibrate :D
                 led_off(); // leds off
-                devStatus.rebootStatusCode = FULL_CALIBRATION; // set device status
-                pushLogToEeprom(&devStatus, FULL_CALIBRATION, sm.time_ms); // log to eeprom
-                devStatus.pillDispenseState = 0; // yeh
+                devicestatus_change_reboot_num(&devStatus, FULL_CALIBRATION);
+                pushLogToEeprom(&devStatus, FULL_CALIBRATION, bootTime); // log to eeprom
                 sm.pills_dropped = 0; // reset pill dropping count.
                 sm.pills_error = 0; // reset error count.
                 sm.state = WAIT_FOR_DISPENSE; // when calibration is done move to next state.
@@ -136,15 +137,14 @@ int main()
                 led_calibration_toggle(sm.time_ms); // toggling leds in a nice pattern.
             } else {
                 if (!logged) {
-                    devStatus.rebootStatusCode = CALIBRATION_FINISHED;
-                    devStatus.prevCalibStepCount = stepper_get_max_steps(&step_ctx);
-                    pushLogToEeprom(&devStatus, CALIBRATION_FINISHED, sm.time_ms);
+                    devicestatus_change_steps(&devStatus, stepper_get_max_steps(&step_ctx), stepper_get_edge_steps(&step_ctx)); // also changes reboot num to calib finished
+                    pushLogToEeprom(&devStatus, CALIBRATION_FINISHED, bootTime);
                     logged = true;
                 }
                 led_on(); // turn leds on when user can press the button to start dispensing.
                 if (dispense_btn_pressed) { // if button pressed
                     logged = false; // reset logged bool
-                    pushLogToEeprom(&devStatus, BUTTON_PRESS, sm.time_ms);
+                    pushLogToEeprom(&devStatus, BUTTON_PRESS, bootTime);
                     led_off(); // turn the led off
                     sm.state = DISPENSE; // move to state where dispensing is actually done.
                 }
@@ -152,20 +152,19 @@ int main()
             break;
         case DISPENSE:
             if ((sm.pills_dropped + sm.pills_error) >= MAX_PILLS) { // if maximum number of pills dropped (or didnt drop was but supposed to)
-                    devStatus.rebootStatusCode = DISPENSER_EMPTY;
+                    devicestatus_change_reboot_num(&devStatus, DISPENSER_EMPTY);
                     pushLogToEeprom(&devStatus, DISPENSER_EMPTY, sm.time_ms);
                     sm.state = CALIBRATE; // set state to calibration. (start all over again)
             } else if ((sm.time_ms - sm.time_drop_started_ms) > PILL_DROP_DELAY_MS) { // if enough time has passed from last pill drop.
                 stepper_turn_steps(&step_ctx, stepper_get_max_steps(&step_ctx) / MAX_TURNS); // turn stepper eighth of a full turn.
                 sm.time_drop_started_ms = sm.time_ms; // set the drop starting time to current time.
                 dropped = false; // reset dropped status
-                devStatus.rebootStatusCode = DISPENSE1 + sm.pills_dropped + sm.pills_error;
+                devicestatus_change_dispense_state(&devStatus, sm.pills_dropped + sm.pills_error);
                 pushLogToEeprom(&devStatus, DISPENSE1 + sm.pills_dropped + sm.pills_error, sm.time_ms);
                 sm.state = CHECK_IF_DISPENSED; // go to check if pill was dispensed correctly.
             }
             break;
         case CHECK_IF_DISPENSED:
-        //TODO: actually check if something dropped... and logs
             if (stepper_is_running(&step_ctx)) { // if stepper is still running we let it do its thing
                 led_run_toggle(sm.time_ms); // and toggle some pretty lights
             } else if (dropped) { // if pill drop was detected by piezo sensor

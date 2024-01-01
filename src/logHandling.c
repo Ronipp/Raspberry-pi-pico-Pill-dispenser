@@ -1,12 +1,12 @@
 
-#include "../lib/eeprom.h"
+#include "eeprom.h"
 #include "hardware/watchdog.h"
 #include "stdio.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "string.h"
-#include "../lib/logHandling.h"
-#include "../lib/lora.h"
+#include "logHandling.h"
+#include "lora.h"
 
 #define LOG_LEN 6                     // Does not include CRC
 #define LOG_ARR_LEN LOG_LEN + CRC_LEN // Includes CRC
@@ -280,7 +280,7 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
  *
  * @param ptrToStruct Pointer to the struct containing the updated pill dispenser status.
  */
-void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
+void updatePillDispenserStatus(DeviceStatus *ptrToStruct)
 {
     uint8_t array[LOG_ARR_LEN]; // Buffer to hold the log array
     // Create a log array based on the provided status information
@@ -297,7 +297,7 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct)
  * @param ptrToStruct Pointer to the struct to update with the pill dispenser status.
  * @return Boolean indicating the success (true) or failure (false) of the EEPROM read operation.
  */
-bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct)
+bool readPillDispenserStatus(DeviceStatus *ptrToStruct)
 {
     bool eepromReadSuccess = true;   // Initialize EEPROM read status as successful
     uint8_t valuesRead[LOG_ARR_LEN]; // Buffer to hold EEPROM values
@@ -369,11 +369,11 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
  * @param messageCode               Message code indicating the type of log entry.
  * @param bootTimestamp             Boot timestamp representing the time when the log was created.
  */
-void pushLogToEeprom(struct DeviceStatus *pillDispenserStatusStruct, int messageCode, uint64_t bootTimestamp)
+void pushLogToEeprom(DeviceStatus *pillDispenserStatusStruct, log_number messageCode, uint32_t time_ms)
 {
     uint8_t logArray[LOG_LEN]; // Buffer to hold log data
     // Create a log array with the provided message code and boot timestamp
-    int arrayLen = createLogArray(logArray, messageCode, getTimestampSinceBoot(bootTimestamp));
+    int arrayLen = createLogArray(logArray, messageCode, time_ms);
 
     // Write the log array to EEPROM at the appropriate index based on the log size and unused log index
     enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
@@ -416,9 +416,10 @@ void printValidLogs()
         {                                     // Check if the log entry is valid (non-zero message code)
             uint8_t messageCode = logData[1]; // Extract the message code
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
+            uint16_t timestamp_s = timestamp / 1000;
             // Construct timestamp from individual bytes
 
-            printf("%s %u seconds after last boot.\n", logMessages[messageCode], timestamp);
+            printf("%d: %s %u seconds after last boot.\n", i, logMessages[messageCode], timestamp_s);
             // Print the log message corresponding to the message code and the timestamp
         }
     }
@@ -442,29 +443,24 @@ bool isValueInArray(int value, int *array, int size)
         }
     }
     return false; // Value not found in the array
-        }
-    }
 }
 
+// wrappers to change device status and push them to eeprom
+void devicestatus_change_reboot_num(DeviceStatus *dev, log_number num) {
+    dev->rebootStatusCode = num;
+    if (num == FULL_CALIBRATION) dev->pillDispenseState = 0;
+    updatePillDispenserStatus(dev);
+}
 
-// typedef enum {
-//     BOOTFINISHED,
-//     BUTTON_PRESS,
-//     WATCHDOG_REBOOT,
-//     DISPENSE1,
-//     DISPENSE2,
-//     DISPENSE3,
-//     DISPENSE4,
-//     DISPENSE5,
-//     DISPENSE6,
-//     DISPENSE7,
-//     PILL_DISPENSED,
-//     PILL_ERROR,
-//     DISPENSER_EMPTY,
-//     HALF_CALIBRATION,
-//     FULL_CALIBRATION,
-//     CALIBRATION_FINISHED,
-// } log_number;
-void logger_log(log_number reason) {
-    
+void devicestatus_change_dispense_state(DeviceStatus *dev, uint8_t num) {
+    dev->pillDispenseState = num;
+    dev->rebootStatusCode = DISPENSE1 + num;
+    updatePillDispenserStatus(dev);
+}
+
+void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t edge_steps) {
+    dev->rebootStatusCode = CALIBRATION_FINISHED;
+    dev->prevCalibStepCount = max_steps;
+    dev->prevCalibEdgeCount = edge_steps;
+    updatePillDispenserStatus(dev);
 }

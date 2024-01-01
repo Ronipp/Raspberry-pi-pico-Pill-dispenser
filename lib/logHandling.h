@@ -39,6 +39,7 @@ typedef struct DeviceStatus
     uint8_t pillDispenseState;
     log_number rebootStatusCode;
     uint16_t prevCalibStepCount;
+    uint16_t prevCalibEdgeCount;
 
     int unusedLogIndex; // index of log the program will use.
 } DeviceStatus;
@@ -56,9 +57,14 @@ void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct);
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct);
 int findFirstAvailableLog();
 uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp);
-void pushLogToEeprom(struct DeviceStatus *devstatus, log_number code, uint32_t bootTimestamp);
+void pushLogToEeprom(DeviceStatus *pillDispenserStatusStruct, log_number messageCode, uint32_t time_ms);
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 void printValidLogs();
 bool isValueInArray(int value, int *array, int size);
+
+// wrappers
+void devicestatus_change_reboot_num(DeviceStatus *dev, log_number num);
+void devicestatus_change_dispense_state(DeviceStatus *dev, uint8_t num);
+void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t edge_steps);
 
 #endif

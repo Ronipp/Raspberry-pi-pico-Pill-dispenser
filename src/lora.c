@@ -37,7 +37,7 @@ bool lora_init(uart_inst_t *uart, uint TX_pin, uint RX_pin) {
     return true;
 }
 
-void lora_message(char *string) {
+void lora_message(const char *string) {
     size_t len = strlen(string)+11;
     char new_str[len];
     new_str[0] = '\0';
