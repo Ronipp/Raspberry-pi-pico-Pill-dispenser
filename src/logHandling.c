@@ -445,22 +445,28 @@ bool isValueInArray(int value, int *array, int size)
     return false; // Value not found in the array
 }
 
-// wrappers to change device status and push them to eeprom
+
 void devicestatus_change_reboot_num(DeviceStatus *dev, log_number num) {
+    if (dev->rebootStatusCode == num) return;
     dev->rebootStatusCode = num;
-    if (num == FULL_CALIBRATION) dev->pillDispenseState = 0;
-    updatePillDispenserStatus(dev);
+    dev->changed = true;
+    
 }
 
 void devicestatus_change_dispense_state(DeviceStatus *dev, uint8_t num) {
+    if (dev->pillDispenseState == num) return;
     dev->pillDispenseState = num;
-    dev->rebootStatusCode = DISPENSE1 + num;
-    updatePillDispenserStatus(dev);
+    dev->changed = true;
 }
 
 void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t edge_steps) {
-    dev->rebootStatusCode = CALIBRATION_FINISHED;
+    if ((dev->prevCalibStepCount == max_steps) && (dev->prevCalibEdgeCount == edge_steps)) return;
     dev->prevCalibStepCount = max_steps;
     dev->prevCalibEdgeCount = edge_steps;
+    dev->changed = true;
+}
+
+void logger_device_status(DeviceStatus *dev) {
+    if (!(dev->changed)) return;
     updatePillDispenserStatus(dev);
 }

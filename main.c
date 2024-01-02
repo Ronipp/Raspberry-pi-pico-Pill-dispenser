@@ -116,7 +116,8 @@ int main()
     bool logged = false;
     
     while (1) {
-        state_machine_update_time(&sm);
+        state_machine_update_time(&sm); // get current time
+        logger_device_status(&devStatus); // pushes device status to eeprom
         switch (sm.state) {
         case CALIBRATE:
         // TODO: logs and lorawan
@@ -126,7 +127,8 @@ int main()
                 stepper_calibrate(&step_ctx); // calibrate :D
                 led_off(); // leds off
                 devicestatus_change_reboot_num(&devStatus, FULL_CALIBRATION);
-                pushLogToEeprom(&devStatus, FULL_CALIBRATION, bootTime); // log to eeprom
+                devicestatus_change_dispense_state(&devStatus, 0);
+                pushLogToEeprom(&devStatus, FULL_CALIBRATION, sm.time_ms); // log to eeprom
                 sm.pills_dropped = 0; // reset pill dropping count.
                 sm.pills_error = 0; // reset error count.
                 sm.state = WAIT_FOR_DISPENSE; // when calibration is done move to next state.
@@ -138,13 +140,13 @@ int main()
             } else {
                 if (!logged) {
                     devicestatus_change_steps(&devStatus, stepper_get_max_steps(&step_ctx), stepper_get_edge_steps(&step_ctx)); // also changes reboot num to calib finished
-                    pushLogToEeprom(&devStatus, CALIBRATION_FINISHED, bootTime);
+                    pushLogToEeprom(&devStatus, CALIBRATION_FINISHED, sm.time_ms);
                     logged = true;
                 }
                 led_on(); // turn leds on when user can press the button to start dispensing.
                 if (dispense_btn_pressed) { // if button pressed
                     logged = false; // reset logged bool
-                    pushLogToEeprom(&devStatus, BUTTON_PRESS, bootTime);
+                    pushLogToEeprom(&devStatus, BUTTON_PRESS, sm.time_ms);
                     led_off(); // turn the led off
                     sm.state = DISPENSE; // move to state where dispensing is actually done.
                 }
@@ -170,13 +172,17 @@ int main()
             } else if (dropped) { // if pill drop was detected by piezo sensor
                 sm.pills_dropped++; // increment pill drop count
                 dropped = false; // reset dropped status
-                // LOG HERE
+                devicestatus_change_reboot_num(&devStatus, PILL_DISPENSED);
+                devicestatus_change_dispense_state(&devStatus, sm.pills_dropped + sm.pills_error);
+                pushLogToEeprom(&devStatus, PILL_DISPENSED, sm.time_ms);
                 sm.state = DISPENSE; // if number of pills dropped not max dispense another
             } else { // if stepper is not running and no pill drop detected
                 if (sm.time_ms - sm.time_drop_started_ms > PILL_NOT_DROPPED_DELAY_MS) { // if too much time between pill drop starting and not sensing a drop
                     led_off(); // leds off
-                    sm.pills_error++; // increment the error count 
-                    // LOG HERE
+                    sm.pills_error++; // increment the error count
+                    devicestatus_change_reboot_num(&devStatus, PILL_ERROR);
+                    devicestatus_change_dispense_state(&devStatus, sm.pills_dropped + sm.pills_error);
+                    pushLogToEeprom(&devStatus, PILL_ERROR, sm.time_ms);
                     sm.state = PILL_NOT_DROPPED; // go to error state
                 } else { // if we are still waiting for the drop
                     led_run_toggle(sm.time_ms); // pretty lights

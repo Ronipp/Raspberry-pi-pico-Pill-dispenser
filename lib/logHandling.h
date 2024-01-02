@@ -40,6 +40,7 @@ typedef struct DeviceStatus
     log_number rebootStatusCode;
     uint16_t prevCalibStepCount;
     uint16_t prevCalibEdgeCount;
+    bool changed;
 
     int unusedLogIndex; // index of log the program will use.
 } DeviceStatus;
@@ -62,9 +63,9 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 void printValidLogs();
 bool isValueInArray(int value, int *array, int size);
 
-// wrappers
 void devicestatus_change_reboot_num(DeviceStatus *dev, log_number num);
 void devicestatus_change_dispense_state(DeviceStatus *dev, uint8_t num);
 void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t edge_steps);
+void logger_device_status(DeviceStatus *dev);
 
 #endif
