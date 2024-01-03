@@ -86,7 +86,9 @@
 |------------|-------------------|----------------------------------|
 | 0          | pillDispenseState | 0 to 7                           |
 | 1          | rebootStatusCode  | Value representing device status before reboot|
-| 2          | prevCalibStepCount| MSB of a uint16_t  |
-| 3          | prevCalibStepCount| LSB of a uint16_t  |
+| 2          | prevCalibStepCount| LSB of a uint16_t  |
+| 3          | prevCalibStepCount| MSB of a uint16_t  |
+| 4          | Edgecount        | LSB of a uint16_t  |
+| 5          | Edgecount        | MSB of a uint16_t  |
 | 4 - 61     | Undefined         |                                  |
 | Final 2    | Reserved CRC      |                                  |

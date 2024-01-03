@@ -266,12 +266,14 @@ int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
  * @param prevCalibStepCount   Previous calibration step count to store in the log array.
  * @return                     The length of the filled log array (4).
  */
-int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount)
+int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount, uint16_t calibEdgeCount)
 {
     array[0] = pillDispenseState;
     array[1] = rebootStatusCode;
     array[2] = (uint8_t)(prevCalibStepCount & 0xFF);        // Store LSB of prevCalibStepCount
     array[3] = (uint8_t)((prevCalibStepCount >> 8) & 0xFF); // Store MSB of prevCalibStepCount
+    array[4] = (uint8_t)(calibEdgeCount & 0xFF);        // Store LSB of calibEdgeCount
+    array[5] = (uint8_t)((calibEdgeCount >> 8) & 0xFF); // Store MSB of calibEdgeCount
     return DISPENSER_STATE_LEN;
 }
 
@@ -285,7 +287,9 @@ void updatePillDispenserStatus(DeviceStatus *ptrToStruct)
     uint8_t array[LOG_ARR_LEN]; // Buffer to hold the log array
     // Create a log array based on the provided status information
     int arrayLen = createPillDispenserStatusLogArray(array, ptrToStruct->pillDispenseState,
-                                                     ptrToStruct->rebootStatusCode, ptrToStruct->prevCalibStepCount);
+                                                     ptrToStruct->rebootStatusCode,
+                                                    ptrToStruct->prevCalibStepCount,
+                                                    ptrToStruct->prevCalibEdgeCount);
     // Write the log array to EEPROM at the designated address for pill dispenser status
     enterLogToEeprom(array, &arrayLen, REBOOT_STATUS_ADDR);
 }
