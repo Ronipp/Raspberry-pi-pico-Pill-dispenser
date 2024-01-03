@@ -114,8 +114,17 @@ int main()
     pushLogToEeprom(&devStatus, BOOTFINISHED, bootTime); // log boot finished
 
     bool logged = false;
-    
+
+    gpio_init(9);
+    gpio_pull_up(9);
+    bool pressed = false;
     while (1) {
+        if (!gpio_get(9) && !pressed) {
+            printValidLogs();
+            pressed = true;
+        } else if (pressed) {
+            pressed = false;
+        }
         state_machine_update_time(&sm); // get current time
         logger_device_status(&devStatus); // pushes device status to eeprom
         switch (sm.state) {
