@@ -45,7 +45,7 @@ typedef enum {
 typedef struct DeviceStatus
 {
     uint8_t pillDispenseState;
-    log_number rebootStatusCode;
+    reboot_num rebootStatusCode;
     uint16_t prevCalibStepCount;
     uint16_t prevCalibEdgeCount;
     uint16_t edgeCount;
@@ -62,7 +62,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
 void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
 void zeroAllLogs();
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
-int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount);
+int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount, uint16_t calibEdgeCount);
 void updatePillDispenserStatus(struct DeviceStatus *ptrToStruct);
 bool readPillDispenserStatus(struct DeviceStatus *ptrToStruct);
 int findFirstAvailableLog();
