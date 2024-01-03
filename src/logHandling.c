@@ -412,7 +412,7 @@ void printValidLogs()
 
         eeprom_read_page(logAddr, logData, LOG_LEN); // Read log data from EEPROM
 
-        if (logData[0] == 0)
+        if (logData[0] == 1)
         {                                     // Check if the log entry is valid (non-zero message code)
             uint8_t messageCode = logData[1]; // Extract the message code
             uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
