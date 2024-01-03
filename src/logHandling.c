@@ -14,6 +14,8 @@
 
 #define DISPENSER_STATE_LEN 6                                 // Does not include CRC
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
+
+// TODO: move these to enum.
 #define PILL_DISPENSE_STATE 0
 #define REBOOT_STATUS_CODE 1
 #define PREV_CALIB_STEP_COUNT_MSB 3
