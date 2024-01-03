@@ -12,12 +12,14 @@
 #define LOG_ARR_LEN LOG_LEN + CRC_LEN // Includes CRC
 #define CRC_LEN 2
 
-#define DISPENSER_STATE_LEN 4                                 // Does not include CRC
+#define DISPENSER_STATE_LEN 6                                 // Does not include CRC
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
 #define PILL_DISPENSE_STATE 0
 #define REBOOT_STATUS_CODE 1
-#define PREV_CALIB_STEP_COUNT_MSB 2
-#define PREV_CALIB_STEP_COUNT_LSB 3
+#define PREV_CALIB_STEP_COUNT_MSB 3
+#define PREV_CALIB_STEP_COUNT_LSB 2
+#define PREV_CALIB_EDGE_COUNT_MSB 5
+#define PREV_CALIB_EDGE_COUNT_LSB 4
 #define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE
 
 #define LOG_START_ADDR 0
@@ -26,7 +28,7 @@
 #define MAX_LOGS LOG_END_ADDR / LOG_SIZE
 
 const char *logMessages[] = {
-    "Boot Finished",
+    "IDLE",
     "Watchdog caused reboot",
     "Dispensing pill 1",
     "Dispensing pill 2",
@@ -52,7 +54,9 @@ const char *logMessages[] = {
     "Reboot during half calibration",
     "Reboot during full calibration",
     "Gremlins in the code",
-    "Failed to read pill dispenser status from EEPROM"};
+    "Failed to read pill dispenser status from EEPROM",
+    "Boot Finished"
+    };
 
 uint16_t crc16(const uint8_t *data, size_t length)
 {
@@ -134,6 +138,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         ptrToStruct->pillDispenseState = 0;
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
+        ptrToStruct->prevCalibEdgeCount = 0;
         ptrToStruct->unusedLogIndex = 0; // TODO: change value.
         pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp); //TODO: create function to combine these two functions.
         lora_message(logMessages[LOG_GREMLINS]);
@@ -203,7 +208,7 @@ void zeroAllLogs()
     uint16_t logAddr = 0;
 
     // Iterate through logs and set the first byte to 0 for each log
-    while (count <= MAX_LOGS)
+    while (count < MAX_LOGS)
     {
         eeprom_write_byte(logAddr, 0); // Write 0 to indicate log not in use
         logAddr += LOG_SIZE;
@@ -247,10 +252,10 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
 {
     array[0] = pillDispenseState;
     array[1] = rebootStatusCode;
-    array[2] = (uint8_t)(prevCalibStepCount & 0xFF);        // Store LSB of prevCalibStepCount
-    array[3] = (uint8_t)((prevCalibStepCount >> 8) & 0xFF); // Store MSB of prevCalibStepCount
-    array[4] = (uint8_t)(calibEdgeCount & 0xFF);        // Store LSB of calibEdgeCount
-    array[5] = (uint8_t)((calibEdgeCount >> 8) & 0xFF); // Store MSB of calibEdgeCount
+    array[PREV_CALIB_STEP_COUNT_LSB] = (uint8_t)(prevCalibStepCount & 0xFF);        // Store LSB of prevCalibStepCount
+    array[PREV_CALIB_STEP_COUNT_MSB] = (uint8_t)((prevCalibStepCount >> 8) & 0xFF); // Store MSB of prevCalibStepCount
+    array[PREV_CALIB_EDGE_COUNT_LSB] = (uint8_t)(calibEdgeCount & 0xFF);        // Store LSB of calibEdgeCount
+    array[PREV_CALIB_EDGE_COUNT_MSB] = (uint8_t)((calibEdgeCount >> 8) & 0xFF); // Store MSB of calibEdgeCount
     return DISPENSER_STATE_LEN;
 }
 
@@ -295,8 +300,8 @@ bool readPillDispenserStatus(DeviceStatus *ptrToStruct)
         ptrToStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
         ptrToStruct->prevCalibStepCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
         ptrToStruct->prevCalibStepCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
-        ptrToStruct->prevCalibEdgeCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
-        ptrToStruct->prevCalibEdgeCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
+        ptrToStruct->prevCalibEdgeCount = (uint16_t)valuesRead[PREV_CALIB_EDGE_COUNT_MSB] << 8; // Extract MSB
+        ptrToStruct->prevCalibEdgeCount |= (uint16_t)valuesRead[PREV_CALIB_EDGE_COUNT_LSB];     // Extract LSB
     }
     else
     {
@@ -372,7 +377,7 @@ void pushLogToEeprom(DeviceStatus *pillDispenserStatusStruct, log_number message
  */
 void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 {
-    if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS)
+    if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS - 1)
     {
         pillDispenserStatusStruct->unusedLogIndex++;
     }
@@ -388,7 +393,7 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
  */
 void printValidLogs()
 {
-    for (int i = 0; i <= MAX_LOGS; i++)
+    for (int i = 0; i < MAX_LOGS; i++)
     {
         uint16_t logAddr = i * LOG_SIZE; // Calculate the EEPROM address for the log entry
         uint8_t logData[LOG_LEN];        // Buffer to hold log data
@@ -451,5 +456,6 @@ void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t e
 
 void logger_device_status(DeviceStatus *dev) {
     if (!(dev->changed)) return;
+    dev->changed = false;
     updatePillDispenserStatus(dev);
 }

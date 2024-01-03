@@ -68,7 +68,7 @@ void piezo_handler(void) {
 
 int main()
 {
-
+    // WELCOME TO SPAGHETTI
     stdio_init_all();
     //EEPROM
     eeprom_init_i2c(i2c0, 1000000, 5); // TODO replace magic numbers
@@ -102,8 +102,12 @@ int main()
     //STATE MACHINE
     if (sm.state == HALF_CALIBRATE) {
         // half calibrate takes: max steps, hole width, number of pills dispensed (how many time stepper has turned)
-        stepper_half_calibrate(&step_ctx, 4095, 315, 2); // start half calibration if its prudent to do so //TODO: REPLACE MAGIC NUMBERS
-        sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
+        if (devStatus.prevCalibStepCount < 4000 || devStatus.prevCalibStepCount > 5500) {
+            sm.state = CALIBRATE;
+        } else {
+            stepper_half_calibrate(&step_ctx, devStatus.prevCalibStepCount, devStatus.prevCalibEdgeCount, devStatus.pillDispenseState); // start half calibration if its prudent to do so //TODO: REPLACE MAGIC NUMBERS
+            sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
+        }
     }
 
     pushLogToEeprom(&devStatus, LOG_BOOTFINISHED, bootTime); // log boot finished
