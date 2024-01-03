@@ -318,6 +318,8 @@ bool readPillDispenserStatus(DeviceStatus *ptrToStruct)
         ptrToStruct->rebootStatusCode = valuesRead[REBOOT_STATUS_CODE];
         ptrToStruct->prevCalibStepCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
         ptrToStruct->prevCalibStepCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
+        ptrToStruct->prevCalibEdgeCount = (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_MSB] << 8; // Extract MSB
+        ptrToStruct->prevCalibEdgeCount |= (uint16_t)valuesRead[PREV_CALIB_STEP_COUNT_LSB];     // Extract LSB
     }
     else
     {
