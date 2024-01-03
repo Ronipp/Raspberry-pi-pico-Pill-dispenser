@@ -122,7 +122,7 @@ int main()
         if (!gpio_get(9) && !pressed) {
             printValidLogs();
             pressed = true;
-        } else if (pressed) {
+        } else if (pressed && gpio_get(9)) {
             pressed = false;
         }
         state_machine_update_time(&sm); // get current time
