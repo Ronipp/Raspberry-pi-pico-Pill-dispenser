@@ -22,7 +22,7 @@
 #define PREV_CALIB_STEP_COUNT_LSB 2
 #define PREV_CALIB_EDGE_COUNT_MSB 5
 #define PREV_CALIB_EDGE_COUNT_LSB 4
-#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE
+#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE + 1000
 
 #define LOG_START_ADDR 0
 #define LOG_END_ADDR 2048
@@ -132,8 +132,11 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
  * @param ptrToStruct    Pointer to the DeviceStatus struct to be updated with reboot sequence details.
  * @param bootTimestamp  Boot timestamp for log recording purposes.
  */
-void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimestamp)
+void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimestamp)
 {
+    // Find the first available log, empties all logs if all are full.
+    ptrToStruct->unusedLogIndex = findFirstAvailableLog();
+
     if (readPillDispenserStatus(ptrToStruct) == false)
     {
         // TODO: Create EEPROM log for failed status read.
@@ -141,14 +144,11 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
         ptrToStruct->prevCalibEdgeCount = 0;
-        ptrToStruct->unusedLogIndex = 0; // TODO: change value.
         pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp); //TODO: create function to combine these two functions.
         lora_message(logMessages[LOG_GREMLINS]);
     }
     ptrToStruct->changed = false;
 
-    // Find the first available log, empties all logs if all are full.
-    ptrToStruct->unusedLogIndex = findFirstAvailableLog();
 
     // Write reboot cause to log if applicable.
     uint8_t logArray[LOG_ARR_LEN];
@@ -161,8 +161,11 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
     {
         switch (ptrToStruct->rebootStatusCode)
         {
+        case IDLE:
+            pushLogToEeprom(ptrToStruct, LOG_IDLE, bootTimestamp);
+            lora_message(logMessages[LOG_IDLE]);
+            break;
         case DISPENSING:
-            
             pushLogToEeprom(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp);
             lora_message(logMessages[LOG_DISPENSE1_ERROR]);
             break;
