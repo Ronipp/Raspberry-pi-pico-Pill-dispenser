@@ -127,7 +127,6 @@ int main()
             pressed = false;
         }
         state_machine_update_time(&sm); // get current time
-        // logger_device_status(&devStatus); // pushes device status to eeprom
         switch (sm.state) {
         case CALIBRATE:
         // TODO: logs and lorawan
@@ -136,8 +135,6 @@ int main()
             if (calib_btn_pressed) { // if button is pressed
                 stepper_calibrate(&step_ctx); // calibrate :D
                 led_off(); // leds off
-                // devicestatus_change_reboot_num(&devStatus, FULL_CALIBRATION);
-                // devicestatus_change_dispense_state(&devStatus, 0);
                 devStatus.rebootStatusCode = FULL_CALIBRATION;
                 devStatus.pillDispenseState = 0;
                 updatePillDispenserStatus(&devStatus);
@@ -151,8 +148,6 @@ int main()
                 led_calibration_toggle(sm.time_ms); // toggling leds in a nice pattern.
             } else {
                 if (!logged) {
-                    // devicestatus_change_reboot_num(&devStatus, IDLE);
-                    // devicestatus_change_steps(&devStatus, stepper_get_max_steps(&step_ctx), stepper_get_edge_steps(&step_ctx));
                     devStatus.rebootStatusCode = IDLE;
                     devStatus.prevCalibStepCount = stepper_get_max_steps(&step_ctx);
                     devStatus.prevCalibEdgeCount = stepper_get_edge_steps(&step_ctx);
@@ -177,8 +172,6 @@ int main()
                 stepper_turn_steps(&step_ctx, stepper_get_max_steps(&step_ctx) / MAX_TURNS); // turn stepper eighth of a full turn.
                 sm.time_drop_started_ms = sm.time_ms; // set the drop starting time to current time.
                 dropped = false; // reset dropped status
-                // devicestatus_change_reboot_num(&devStatus, DISPENSING);
-                // devicestatus_change_dispense_state(&devStatus, sm.pills_dropped);
                 devStatus.rebootStatusCode = DISPENSING;
                 devStatus.pillDispenseState = sm.pills_dropped;
                 updatePillDispenserStatus(&devStatus);
@@ -192,8 +185,6 @@ int main()
             } else if (dropped) { // if pill drop was detected by piezo sensor
                 sm.pills_dropped++; // increment pill drop count
                 dropped = false; // reset dropped status
-                // devicestatus_change_reboot_num(&devStatus, IDLE);
-                // devicestatus_change_dispense_state(&devStatus, sm.pills_dropped);
                 devStatus.rebootStatusCode = IDLE;
                 devStatus.pillDispenseState = sm.pills_dropped;
                 updatePillDispenserStatus(&devStatus);
@@ -203,8 +194,6 @@ int main()
                 if (sm.time_ms - sm.time_drop_started_ms > PILL_NOT_DROPPED_DELAY_MS) { // if too much time between pill drop starting and not sensing a drop
                     led_off(); // leds off
                     sm.pills_dropped++; // increment turned count
-                    // devicestatus_change_reboot_num(&devStatus, IDLE);
-                    // devicestatus_change_dispense_state(&devStatus, sm.pills_dropped);
                     devStatus.rebootStatusCode = IDLE;
                     devStatus.pillDispenseState = sm.pills_dropped;
                     updatePillDispenserStatus(&devStatus);

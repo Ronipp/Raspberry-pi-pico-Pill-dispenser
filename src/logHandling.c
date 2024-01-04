@@ -30,7 +30,7 @@
 #define MAX_LOGS LOG_END_ADDR / LOG_SIZE
 
 const char *logMessages[] = {
-    "IDLE",
+    "Shutdown while motor was idle",
     "Watchdog caused reboot",
     "Dispensing pill 1",
     "Dispensing pill 2",
@@ -147,9 +147,6 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
         pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp); //TODO: create function to combine these two functions.
         lora_message(logMessages[LOG_GREMLINS]);
     }
-    ptrToStruct->changed = false;
-
-
     // Write reboot cause to log if applicable.
     uint8_t logArray[LOG_ARR_LEN];
     if (watchdog_caused_reboot() == true) // If watchdog caused reboot
@@ -157,32 +154,29 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
         pushLogToEeprom(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
         lora_message(logMessages[LOG_WATCHDOG_REBOOT]);
     }
-    else if (ptrToStruct->rebootStatusCode != 0) // If reboot status code is not 0
+    switch (ptrToStruct->rebootStatusCode)
     {
-        switch (ptrToStruct->rebootStatusCode)
-        {
-        case IDLE:
-            pushLogToEeprom(ptrToStruct, LOG_IDLE, bootTimestamp);
-            lora_message(logMessages[LOG_IDLE]);
-            break;
-        case DISPENSING:
-            pushLogToEeprom(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp);
-            lora_message(logMessages[LOG_DISPENSE1_ERROR]);
-            break;
-        case FULL_CALIBRATION:
-            pushLogToEeprom(ptrToStruct, LOG_FULL_CALIBRATION_ERROR, bootTimestamp);
-            lora_message(logMessages[LOG_FULL_CALIBRATION_ERROR]);
-            break;
-        case HALF_CALIBRATION:
-            pushLogToEeprom(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp);
-            lora_message(logMessages[LOG_HALF_CALIBRATION_ERROR]);
-            break;
-        default:
-            pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp);
-            lora_message(logMessages[LOG_GREMLINS]);
-            printf("There's gremlins in the code.\n");
-            break;
-        }
+    case IDLE:
+        pushLogToEeprom(ptrToStruct, LOG_IDLE, bootTimestamp);
+        lora_message(logMessages[LOG_IDLE]);
+        break;
+    case DISPENSING:
+        pushLogToEeprom(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp);
+        lora_message(logMessages[LOG_DISPENSE1_ERROR]);
+        break;
+    case FULL_CALIBRATION:
+        pushLogToEeprom(ptrToStruct, LOG_FULL_CALIBRATION_ERROR, bootTimestamp);
+        lora_message(logMessages[LOG_FULL_CALIBRATION_ERROR]);
+        break;
+    case HALF_CALIBRATION:
+        pushLogToEeprom(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp);
+        lora_message(logMessages[LOG_HALF_CALIBRATION_ERROR]);
+        break;
+    default:
+        pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp);
+        lora_message(logMessages[LOG_GREMLINS]);
+        printf("There's gremlins in the code.\n");
+        break;
     }
 }
 
@@ -439,29 +433,3 @@ bool isValueInArray(int value, int *array, int size)
     return false; // Value not found in the array
 }
 
-
-void devicestatus_change_reboot_num(DeviceStatus *dev, reboot_num num) {
-    if (dev->rebootStatusCode == num) return;
-    dev->rebootStatusCode = num;
-    dev->changed = true;
-    
-}
-
-void devicestatus_change_dispense_state(DeviceStatus *dev, uint8_t num) {
-    if (dev->pillDispenseState == num) return;
-    dev->pillDispenseState = num;
-    dev->changed = true;
-}
-
-void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t edge_steps) {
-    if ((dev->prevCalibStepCount == max_steps) && (dev->prevCalibEdgeCount == edge_steps)) return;
-    dev->prevCalibStepCount = max_steps;
-    dev->prevCalibEdgeCount = edge_steps;
-    dev->changed = true;
-}
-
-void logger_device_status(DeviceStatus *dev) {
-    if (!(dev->changed)) return;
-    dev->changed = false;
-    updatePillDispenserStatus(dev);
-}

@@ -48,7 +48,6 @@ typedef struct DeviceStatus
     reboot_num rebootStatusCode;
     uint16_t prevCalibStepCount;
     uint16_t prevCalibEdgeCount;
-    bool changed;
 
     int unusedLogIndex; // index of log the program will use.
 } DeviceStatus;
