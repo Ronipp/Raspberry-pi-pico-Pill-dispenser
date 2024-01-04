@@ -70,9 +70,6 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 void printValidLogs();
 bool isValueInArray(int value, int *array, int size);
 
-void devicestatus_change_reboot_num(DeviceStatus *dev, reboot_num num);
-void devicestatus_change_dispense_state(DeviceStatus *dev, uint8_t num);
-void devicestatus_change_steps(DeviceStatus *dev, uint16_t max_steps, uint16_t edge_steps);
-void logger_device_status(DeviceStatus *dev);
+void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms);
 
 #endif

@@ -16,8 +16,8 @@
 
 #include "hardware/pio.h"
 
-#define UART_TX_PIN
-#define UART_RX_PIN
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
 #define EEPROM_ARR_LENGTH 64
 #define LOG_START_ADDR 0
 
@@ -74,7 +74,7 @@ int main()
     //EEPROM
     eeprom_init_i2c(i2c0, 1000000, 5); // TODO replace magic numbers
     //LORAWAN
-    // lora_init(uart1, UART_TX_PIN, UART_RX_PIN);
+    if (!lora_init(uart1, UART_TX_PIN, UART_RX_PIN)) printf("lora error\n");
 
     // STEPPER MOTOR
     uint stepperpins[4] = {BLUE, PINK, YELLOW, ORANGE}; // pins by color, see stepper.h for pin numbers.
@@ -107,12 +107,12 @@ int main()
             sm.state = CALIBRATE;
         } else {
             stepper_half_calibrate(&step_ctx, devStatus.prevCalibStepCount, devStatus.prevCalibEdgeCount, devStatus.pillDispenseState); // start half calibration if its prudent to do so //TODO: REPLACE MAGIC NUMBERS
-            pushLogToEeprom(&devStatus, LOG_HALF_CALIBRATION, bootTime);
+            logger_log(&devStatus, LOG_HALF_CALIBRATION, bootTime);
             sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense button press
         }
     }
 
-    pushLogToEeprom(&devStatus, LOG_BOOTFINISHED, bootTime); // log boot finished
+    logger_log(&devStatus, LOG_BOOTFINISHED, bootTime); // log boot finished
 
     bool logged = false;
 
@@ -138,7 +138,7 @@ int main()
                 devStatus.rebootStatusCode = FULL_CALIBRATION;
                 devStatus.pillDispenseState = 0;
                 updatePillDispenserStatus(&devStatus);
-                pushLogToEeprom(&devStatus, LOG_FULL_CALIBRATION, sm.time_ms); // log to eeprom
+                logger_log(&devStatus, LOG_FULL_CALIBRATION, sm.time_ms); // log to eeprom
                 sm.pills_dropped = 0; // reset pill dropping count.
                 sm.state = WAIT_FOR_DISPENSE; // when calibration is done move to next state.
             }
@@ -152,13 +152,13 @@ int main()
                     devStatus.prevCalibStepCount = stepper_get_max_steps(&step_ctx);
                     devStatus.prevCalibEdgeCount = stepper_get_edge_steps(&step_ctx);
                     updatePillDispenserStatus(&devStatus);
-                    pushLogToEeprom(&devStatus, LOG_CALIBRATION_FINISHED, sm.time_ms);
+                    logger_log(&devStatus, LOG_CALIBRATION_FINISHED, sm.time_ms);
                     logged = true;
                 }
                 led_on(); // turn leds on when user can press the button to start dispensing.
                 if (dispense_btn_pressed) { // if button pressed
                     logged = false; // reset logged bool
-                    pushLogToEeprom(&devStatus, LOG_BUTTON_PRESS, sm.time_ms);
+                    logger_log(&devStatus, LOG_BUTTON_PRESS, sm.time_ms);
                     led_off(); // turn the led off
                     sm.state = DISPENSE; // move to state where dispensing is actually done.
                 }
@@ -166,7 +166,7 @@ int main()
             break;
         case DISPENSE:
             if ((sm.pills_dropped) >= MAX_PILLS) { // if maximum number of pills dropped (or didnt drop was but supposed to)
-                    pushLogToEeprom(&devStatus, LOG_DISPENSER_EMPTY, sm.time_ms);
+                    logger_log(&devStatus, LOG_DISPENSER_EMPTY, sm.time_ms);
                     sm.state = CALIBRATE; // set state to calibration. (start all over again)
             } else if ((sm.time_ms - sm.time_drop_started_ms) > PILL_DROP_DELAY_MS) { // if enough time has passed from last pill drop.
                 stepper_turn_steps(&step_ctx, stepper_get_max_steps(&step_ctx) / MAX_TURNS); // turn stepper eighth of a full turn.
@@ -175,7 +175,7 @@ int main()
                 devStatus.rebootStatusCode = DISPENSING;
                 devStatus.pillDispenseState = sm.pills_dropped;
                 updatePillDispenserStatus(&devStatus);
-                pushLogToEeprom(&devStatus, LOG_DISPENSE1 + sm.pills_dropped, sm.time_ms);
+                logger_log(&devStatus, LOG_DISPENSE1 + sm.pills_dropped, sm.time_ms);
                 sm.state = CHECK_IF_DISPENSED; // go to check if pill was dispensed correctly.
             }
             break;
@@ -189,7 +189,7 @@ int main()
                 devStatus.rebootStatusCode = IDLE;
                 devStatus.pillDispenseState = sm.pills_dropped;
                 updatePillDispenserStatus(&devStatus);
-                pushLogToEeprom(&devStatus, LOG_PILL_DISPENSED, sm.time_ms);
+                logger_log(&devStatus, LOG_PILL_DISPENSED, sm.time_ms);
                 sm.state = DISPENSE; // if number of pills dropped not max dispense another
             } else { // if stepper is not running and no pill drop detected
                 if (sm.time_ms - sm.time_drop_started_ms > PILL_NOT_DROPPED_DELAY_MS) { // if too much time between pill drop starting and not sensing a drop
@@ -198,7 +198,7 @@ int main()
                     devStatus.rebootStatusCode = IDLE;
                     devStatus.pillDispenseState = sm.pills_dropped;
                     updatePillDispenserStatus(&devStatus);
-                    pushLogToEeprom(&devStatus, LOG_PILL_ERROR, sm.time_ms);
+                    logger_log(&devStatus, LOG_PILL_ERROR, sm.time_ms);
                     sm.state = PILL_NOT_DROPPED; // go to error state
                 } else { // if we are still waiting for the drop
                     led_run_toggle(sm.time_ms); // pretty lights

@@ -6,38 +6,43 @@
 #include "lora.h"
 
 #define MAX_TRIES 5
+#define BAUDRATE 9600
+#define BUF_LEN 20  
 
 static uart_inst_t *uart_instance;
+static bool lora_available = false;
 
 bool lora_init(uart_inst_t *uart, uint TX_pin, uint RX_pin) {
     gpio_set_function(TX_pin, GPIO_FUNC_UART);
     gpio_set_function(RX_pin, GPIO_FUNC_UART);
 
-    uart_init(uart, 9600); //TODO: magic number
+    uart_init(uart, BAUDRATE);
     uart_instance = uart;
-    char buf[20]; //TODO: magic number(s)
+    char buf[BUF_LEN];
     if (lora_wait()) {
         if (!lora_write("AT+MODE=LWOTAA\r\n")) return false;
-        lora_read_uart(buf, 20);
+        lora_read_uart(buf, BUF_LEN);
         printf("mode %s\n", buf);
         // "+KEY=APPKEY,\"1AEF109988E296E7D46DDB456C77B208\"\r\n"
         if (!lora_write("AT+KEY=APPKEY,\"1AEF109988E296E7D46DDB456C77B208\"\r\n")) return false;
-        lora_read_uart(buf, 20);
+        lora_read_uart(buf, BUF_LEN);
         printf("key %s\n", buf);
         if (!lora_write("AT+CLASS=A\r\n")) return false;
-        lora_read_uart(buf, 20);
+        lora_read_uart(buf, BUF_LEN);
         printf("class %s\n", buf);
         if (!lora_write("AT+PORT\r\n")) return false;
-        lora_read_uart(buf, 20);
+        lora_read_uart(buf, BUF_LEN);
         printf("port %s\n", buf);
         if (!lora_write("AT+JOIN\r\n")) return false;
-        lora_read_uart(buf, 20);
+        lora_read_uart(buf, BUF_LEN);
         printf("join %s\n", buf);
     }
+    lora_available = true;
     return true;
 }
 
 void lora_message(const char *string) {
+    if (!lora_available) return;
     size_t len = strlen(string)+11;
     char new_str[len];
     new_str[0] = '\0';

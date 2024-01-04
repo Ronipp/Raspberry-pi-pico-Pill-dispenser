@@ -144,37 +144,30 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
         ptrToStruct->prevCalibEdgeCount = 0;
-        pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp); //TODO: create function to combine these two functions.
-        lora_message(logMessages[LOG_GREMLINS]);
+        logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp);
     }
     // Write reboot cause to log if applicable.
     uint8_t logArray[LOG_ARR_LEN];
     if (watchdog_caused_reboot() == true) // If watchdog caused reboot
     {
-        pushLogToEeprom(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
-        lora_message(logMessages[LOG_WATCHDOG_REBOOT]);
+        logger_log(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
     }
     switch (ptrToStruct->rebootStatusCode)
     {
     case IDLE:
-        pushLogToEeprom(ptrToStruct, LOG_IDLE, bootTimestamp);
-        lora_message(logMessages[LOG_IDLE]);
+        logger_log(ptrToStruct, LOG_IDLE, bootTimestamp);
         break;
     case DISPENSING:
-        pushLogToEeprom(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp);
-        lora_message(logMessages[LOG_DISPENSE1_ERROR]);
+        logger_log(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp);
         break;
     case FULL_CALIBRATION:
-        pushLogToEeprom(ptrToStruct, LOG_FULL_CALIBRATION_ERROR, bootTimestamp);
-        lora_message(logMessages[LOG_FULL_CALIBRATION_ERROR]);
+        logger_log(ptrToStruct, LOG_FULL_CALIBRATION_ERROR, bootTimestamp);
         break;
     case HALF_CALIBRATION:
-        pushLogToEeprom(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp);
-        lora_message(logMessages[LOG_HALF_CALIBRATION_ERROR]);
+        logger_log(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp);
         break;
     default:
-        pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp);
-        lora_message(logMessages[LOG_GREMLINS]);
+        logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp);
         printf("There's gremlins in the code.\n");
         break;
     }
@@ -431,5 +424,10 @@ bool isValueInArray(int value, int *array, int size)
         }
     }
     return false; // Value not found in the array
+}
+
+void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms) {
+    pushLogToEeprom(dev, num, time_ms); //TODO: create function to combine these two functions.
+    lora_message(logMessages[num]);
 }
 
