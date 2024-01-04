@@ -108,7 +108,7 @@ int main()
         } else {
             stepper_half_calibrate(&step_ctx, devStatus.prevCalibStepCount, devStatus.prevCalibEdgeCount, devStatus.pillDispenseState); // start half calibration if its prudent to do so //TODO: REPLACE MAGIC NUMBERS
             pushLogToEeprom(&devStatus, LOG_HALF_CALIBRATION, bootTime);
-            sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense
+            sm.state = WAIT_FOR_DISPENSE; // state to wait for dispense button press
         }
     }
 
@@ -183,6 +183,7 @@ int main()
             if (stepper_is_running(&step_ctx)) { // if stepper is still running we let it do its thing
                 led_run_toggle(sm.time_ms); // and toggle some pretty lights
             } else if (dropped) { // if pill drop was detected by piezo sensor
+                led_off();
                 sm.pills_dropped++; // increment pill drop count
                 dropped = false; // reset dropped status
                 devStatus.rebootStatusCode = IDLE;
