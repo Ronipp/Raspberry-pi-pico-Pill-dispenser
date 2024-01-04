@@ -24,7 +24,11 @@ typedef struct sm {
 state_machine statemachine_get(uint times_stepper_turned) {
     state_machine sm;
     sm.pills_dropped = times_stepper_turned;
-    sm.state = ((times_stepper_turned) == 0) ? CALIBRATE : HALF_CALIBRATE;
+    if (times_stepper_turned <= 0 || times_stepper_turned >= 7) {
+        sm.state = CALIBRATE;
+    } else {
+        sm.state = HALF_CALIBRATE;
+    }
     sm.time_ms = to_ms_since_boot(get_absolute_time());
     sm.time_drop_started_ms = 0;
     sm.error_blink_counter = 0;

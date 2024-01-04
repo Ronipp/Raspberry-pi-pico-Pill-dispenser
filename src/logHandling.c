@@ -145,6 +145,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint64_t bootTimest
         pushLogToEeprom(ptrToStruct, LOG_GREMLINS, bootTimestamp); //TODO: create function to combine these two functions.
         lora_message(logMessages[LOG_GREMLINS]);
     }
+    ptrToStruct->changed = false;
 
     // Find the first available log, empties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
