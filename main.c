@@ -173,8 +173,8 @@ int main()
             break;
         case DISPENSE:
             if ((sm.pills_dropped) >= MAX_PILLS) { // if maximum number of pills dropped (or didnt drop was but supposed to)
-                    logger_log(&devStatus, LOG_DISPENSER_EMPTY, sm.time_ms);
-                    sm.state = CALIBRATE; // set state to calibration. (start all over again)
+                logger_log(&devStatus, LOG_DISPENSER_EMPTY, sm.time_ms);
+                sm.state = CALIBRATE; // set state to calibration. (start all over again)
             } else if ((sm.time_ms - sm.time_drop_started_ms) > PILL_DROP_DELAY_MS) { // if enough time has passed from last pill drop.
                 stepper_turn_steps(&step_ctx, stepper_get_max_steps(&step_ctx) / MAX_TURNS); // turn stepper eighth of a full turn.
                 sm.time_drop_started_ms = sm.time_ms; // set the drop starting time to current time.
