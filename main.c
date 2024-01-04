@@ -25,6 +25,8 @@
 #define PIEZO_PIN 27
 #define BUTTON1 7
 #define BUTTON2 8
+#define BUTTON3 9
+#define NUMBER_OF_DEBOUNCED_BUTTONS 2
 
 #define STEPPER_SPEED_RPM 10
 #define PILL_DROP_MARGIN_MS 100
@@ -35,6 +37,11 @@
 #define ERROR_BLINK_TIMES 5
 #define MAX_PILLS 7
 #define MAX_TURNS 8
+#define MAX_VALID_MAX_STEP_COUNT_BOUND_MIN 4000
+#define MAX_VALID_MAX_STEP_COUNT_BOUND_MAX 5500
+
+#define EEPROM_BAUD_RATE 1000000
+#define EEPROM_WRITE_CYCLE_MAX_MS 5
 
 
     static bool calib_btn_pressed = false;
@@ -72,7 +79,7 @@ int main()
     // WELCOME TO SPAGHETTI
     stdio_init_all();
     //EEPROM
-    eeprom_init_i2c(i2c0, 1000000, 5); // TODO replace magic numbers
+    eeprom_init_i2c(i2c0, EEPROM_BAUD_RATE, EEPROM_WRITE_CYCLE_MAX_MS);
     //LORAWAN
     if (!lora_init(uart1, UART_TX_PIN, UART_RX_PIN)) printf("lora error\n");
 
@@ -83,7 +90,7 @@ int main()
     //LEDS
     led_init(); // inits pwm for leds so we don't get blind.
     //BUTTONS
-    init_button_with_callback(BUTTON1, 2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler); // set debounced irq for buttons. //TODO: REPLACE MAGIC NUMBER
+    init_button_with_callback(BUTTON1, NUMBER_OF_DEBOUNCED_BUTTONS, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, button_handler); // set debounced irq for buttons.
     // PIEZO SENSOR
     gpio_init(PIEZO_PIN); // enabled, func set, dir in.
     gpio_pull_up(PIEZO_PIN); // pull up
@@ -103,7 +110,7 @@ int main()
     //STATE MACHINE
     if (sm.state == HALF_CALIBRATE) {
         // half calibrate takes: max steps, hole width, number of pills dispensed (how many time stepper has turned)
-        if (devStatus.prevCalibStepCount < 4000 || devStatus.prevCalibStepCount > 5500) {
+        if (devStatus.prevCalibStepCount < MAX_VALID_MAX_STEP_COUNT_BOUND_MIN || devStatus.prevCalibStepCount > MAX_VALID_MAX_STEP_COUNT_BOUND_MAX) {
             sm.state = CALIBRATE;
         } else {
             stepper_half_calibrate(&step_ctx, devStatus.prevCalibStepCount, devStatus.prevCalibEdgeCount, devStatus.pillDispenseState); // start half calibration if its prudent to do so //TODO: REPLACE MAGIC NUMBERS
@@ -116,11 +123,11 @@ int main()
 
     bool logged = false;
 
-    gpio_init(9);
-    gpio_pull_up(9);
+    gpio_init(BUTTON3);
+    gpio_pull_up(BUTTON3);
     bool pressed = false;
     while (1) {
-        if (!gpio_get(9) && !pressed) {
+        if (!gpio_get(BUTTON3) && !pressed) {
             printValidLogs();
             pressed = true;
         } else if (pressed && gpio_get(9)) {

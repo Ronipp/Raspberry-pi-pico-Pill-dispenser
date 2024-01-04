@@ -22,7 +22,7 @@
 #define PREV_CALIB_STEP_COUNT_LSB 2
 #define PREV_CALIB_EDGE_COUNT_MSB 5
 #define PREV_CALIB_EDGE_COUNT_LSB 4
-#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE + 1000
+#define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE
 
 #define LOG_START_ADDR 0
 #define LOG_END_ADDR 2048
@@ -41,7 +41,7 @@ const char *logMessages[] = {
     "Dispensing pill 7",
     "Doing half calibration",
     "Doing full calibration",
-    "Button press",
+    "Dispensing button pressed",
     "pill dispensed",
     "pill drop not detected",
     "Pill dispenser is empty",
