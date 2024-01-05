@@ -15,13 +15,6 @@
 #define DISPENSER_STATE_LEN 6                                 // Does not include CRC
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
 
-// TODO: move these to enum.
-#define PILL_DISPENSE_STATE 0
-#define REBOOT_STATUS_CODE 1
-#define PREV_CALIB_STEP_COUNT_MSB 3
-#define PREV_CALIB_STEP_COUNT_LSB 2
-#define PREV_CALIB_EDGE_COUNT_MSB 5
-#define PREV_CALIB_EDGE_COUNT_LSB 4
 #define REBOOT_STATUS_ADDR LOG_END_ADDR + LOG_SIZE
 
 #define LOG_START_ADDR 0
@@ -220,13 +213,13 @@ void zeroAllLogs()
  */
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
 {
-    array[0] = 1;           // Indicates log in use
-    array[1] = messageCode; // Store the message code
+    array[LOG_USE_STATUS] = 1;           // Indicates log in use
+    array[MESSAGE_CODE] = messageCode; // Store the message code
 
-    array[5] = (uint8_t)(timestamp & 0xFF); // LSB of timestamp
-    array[4] = (uint8_t)((timestamp >> 8) & 0xFF);
-    array[3] = (uint8_t)((timestamp >> 16) & 0xFF);
-    array[2] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB of timestamp
+    array[TIMESTAMP_LSB] = (uint8_t)(timestamp & 0xFF); // LSB of timestamp
+    array[TIMESTAMP_MSB2] = (uint8_t)((timestamp >> 8) & 0xFF);
+    array[TIMESTAMP_MSB1] = (uint8_t)((timestamp >> 16) & 0xFF);
+    array[TIMESTAMP_MSB] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB of timestamp
 
     return LOG_LEN; // Return the length of the filled log array (LOG_LEN)
 }
@@ -243,8 +236,8 @@ int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
  */
 int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount, uint16_t calibEdgeCount)
 {
-    array[0] = pillDispenseState;
-    array[1] = rebootStatusCode;
+    array[PILL_DISPENSE_STATE] = pillDispenseState;
+    array[REBOOT_STATUS_CODE] = rebootStatusCode;
     array[PREV_CALIB_STEP_COUNT_LSB] = (uint8_t)(prevCalibStepCount & 0xFF);        // Store LSB of prevCalibStepCount
     array[PREV_CALIB_STEP_COUNT_MSB] = (uint8_t)((prevCalibStepCount >> 8) & 0xFF); // Store MSB of prevCalibStepCount
     array[PREV_CALIB_EDGE_COUNT_LSB] = (uint8_t)(calibEdgeCount & 0xFF);        // Store LSB of calibEdgeCount
@@ -393,10 +386,10 @@ void printValidLogs()
 
         eeprom_read_page(logAddr, logData, LOG_LEN); // Read log data from EEPROM
 
-        if (logData[0] == 1)
+        if (logData[LOG_USE_STATUS] == 1)
         {                                     // Check if the log entry is valid (non-zero message code)
-            uint8_t messageCode = logData[1]; // Extract the message code
-            uint32_t timestamp = (logData[2] << 24) | (logData[3] << 16) | (logData[4] << 8) | logData[5];
+            uint8_t messageCode = logData[MESSAGE_CODE]; // Extract the message code
+            uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
             uint16_t timestamp_s = timestamp / 1000;
             // Construct timestamp from individual bytes
 

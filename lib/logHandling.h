@@ -42,6 +42,24 @@ typedef enum {
     LOG_BOOTFINISHED
 } log_number;
 
+typedef enum {
+    PILL_DISPENSE_STATE,
+    REBOOT_STATUS_CODE,
+    PREV_CALIB_STEP_COUNT_LSB,
+    PREV_CALIB_STEP_COUNT_MSB,
+    PREV_CALIB_EDGE_COUNT_LSB,
+    PREV_CALIB_EDGE_COUNT_MSB
+} PillDispenserStatusArray;
+
+typedef enum {
+    LOG_USE_STATUS,
+    MESSAGE_CODE,
+    TIMESTAMP_MSB,
+    TIMESTAMP_MSB1,
+    TIMESTAMP_MSB2,
+    TIMESTAMP_LSB
+} LogArray;
+
 typedef struct DeviceStatus
 {
     uint8_t pillDispenseState;
