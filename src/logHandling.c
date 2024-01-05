@@ -8,9 +8,9 @@
 #include "logHandling.h"
 #include "lora.h"
 
+#define CRC_LEN 2
 #define LOG_LEN 6                     // Does not include CRC
 #define LOG_ARR_LEN LOG_LEN + CRC_LEN // Includes CRC
-#define CRC_LEN 2
 
 #define DISPENSER_STATE_LEN 6                                 // Does not include CRC
 #define DISPENSER_STATE_ARR_LEN DISPENSER_STATE_LEN + CRC_LEN // Includes CRC
@@ -397,7 +397,7 @@ void printValidLogs()
 
         eeprom_read_page(logAddr, logData, LOG_LEN); // Read log data from EEPROM
 
-        if (logData[LOG_USE_STATUS] == 1)
+        if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, &LOG_ARR_LEN) == true)
         {                                     // Check if the log entry is valid (non-zero message code)
             uint8_t messageCode = logData[MESSAGE_CODE]; // Extract the message code
             uint32_t timestamp = (logData[TIMESTAMP_MSB] << 24) | (logData[TIMESTAMP_MSB1] << 16) | (logData[TIMESTAMP_MSB2] << 8) | logData[TIMESTAMP_LSB];
