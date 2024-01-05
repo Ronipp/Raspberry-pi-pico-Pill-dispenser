@@ -119,8 +119,11 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
 }
 
 /**
- * Manages the reboot sequence, including reading previous status from EEPROM, finding an available log,
- * writing reboot causes to logs, and recording a boot message upon sequence completion.
+ * Manages the reboot sequence:
+ * - Reads previous status from EEPROM
+ * - Finds an available log for recording
+ * - Writes reboot causes to logs
+ * - Records a boot message upon sequence completion.
  *
  * @param ptrToStruct    Pointer to the DeviceStatus struct to be updated with reboot sequence details.
  * @param bootTimestamp  Boot timestamp for log recording purposes.
@@ -130,21 +133,24 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
     // Find the first available log, empties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
 
+    // If unable to read pill dispenser status, reset related fields and log the issue.
     if (readPillDispenserStatus(ptrToStruct) == false)
     {
-        // TODO: Create EEPROM log for failed status read.
         ptrToStruct->pillDispenseState = 0;
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
         ptrToStruct->prevCalibEdgeCount = 0;
         logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp);
     }
-    // Write reboot cause to log if applicable.
+
+    // Write reboot cause to log if watchdog caused reboot.
     uint8_t logArray[LOG_ARR_LEN];
-    if (watchdog_caused_reboot() == true) // If watchdog caused reboot
+    if (watchdog_caused_reboot() == true)
     {
-        logger_log(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp); // Log the reboot cause
+        logger_log(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp);
     }
+
+    // Log specific reboot causes based on the reboot status code.
     switch (ptrToStruct->rebootStatusCode)
     {
     case IDLE:
@@ -160,6 +166,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
         logger_log(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp);
         break;
     default:
+        // Log a generic error and provide a message indicating potential issues.
         logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp);
         printf("There's gremlins in the code.\n");
         break;
@@ -167,8 +174,8 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
 }
 
 /**
- * Writes the provided array (assumed to be pre-formatted with appended CRC) to the specified EEPROM address.
- * Assumes the array is ready for writing and includes appended CRC for data integrity.
+ * Writes the provided pre-formatted array to the specified EEPROM address,
+ * ensuring data integrity during storage.
  *
  * @param base8Array  Pointer to the pre-formatted base 8 array with appended CRC.
  * @param arrayLen    Pointer to the length of the array.
@@ -176,7 +183,7 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
  */
 void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 {
-    // Create a new array and append CRC
+    // Create a new array and append CRC for data integrity
     uint8_t crcAppendedArray[*arrayLen + CRC_LEN];
     memcpy(crcAppendedArray, base8Array, *arrayLen);   // Copy the original array
     appendCrcToBase8Array(crcAppendedArray, arrayLen); // Append CRC to the copied array
@@ -186,14 +193,15 @@ void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr)
 }
 
 /**
- * Sets the first byte of every log in EEPROM to 0, indicating that it is not in use.
+ * Marks all logs in the EEPROM as not in use by setting the first byte of each log to 0.
+ * This action prepares logs for reuse or indicates their availability for new data.
  */
 void zeroAllLogs()
 {
     int count = 0;
     uint16_t logAddr = 0;
 
-    // Iterate through logs and set the first byte to 0 for each log
+    // Iterate through logs and mark them as not in use by setting the first byte to 0
     while (count < MAX_LOGS)
     {
         eeprom_write_byte(logAddr, 0); // Write 0 to indicate log not in use
@@ -203,8 +211,7 @@ void zeroAllLogs()
 }
 
 /**
- * Fills a log array based on the given message code and timestamp.
- * The array must have a minimum length of 8.
+ * Fills a log array with specified message code and timestamp data, ensuring a minimum length of 8.
  *
  * @param array        Pointer to the array to be filled with log information.
  * @param messageCode  Message code to store in the log array.
@@ -213,10 +220,11 @@ void zeroAllLogs()
  */
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
 {
-    array[LOG_USE_STATUS] = 1;           // Indicates log in use
-    array[MESSAGE_CODE] = messageCode; // Store the message code
+    array[LOG_USE_STATUS] = 1;           // Mark log as in use
+    array[MESSAGE_CODE] = messageCode;   // Store the message code
 
-    array[TIMESTAMP_LSB] = (uint8_t)(timestamp & 0xFF); // LSB of timestamp
+    // Store timestamp bytes in little-endian format
+    array[TIMESTAMP_LSB] = (uint8_t)(timestamp & 0xFF);         // LSB of timestamp
     array[TIMESTAMP_MSB2] = (uint8_t)((timestamp >> 8) & 0xFF);
     array[TIMESTAMP_MSB1] = (uint8_t)((timestamp >> 16) & 0xFF);
     array[TIMESTAMP_MSB] = (uint8_t)((timestamp >> 24) & 0xFF); // MSB of timestamp
@@ -225,24 +233,25 @@ int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp)
 }
 
 /**
- * Fills a pill dispenser status log array based on the given pill dispenser state, reboot status code,
- * and previous calibration step count. The array must have a minimum length of 7.
+ * Fills an array with pill dispenser status log data based on the provided information.
+ * The array must have a minimum length of 7.
  *
- * @param array                Pointer to the array to fill with the pill dispenser status log.
+ * @param array                Pointer to the array for the pill dispenser status log.
  * @param pillDispenseState    Pill dispenser state to store in the log array.
  * @param rebootStatusCode     Reboot status code to store in the log array.
  * @param prevCalibStepCount   Previous calibration step count to store in the log array.
+ * @param calibEdgeCount       Calibration edge count to store in the log array.
  * @return                     The length of the filled log array (4).
  */
 int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState, uint8_t rebootStatusCode, uint16_t prevCalibStepCount, uint16_t calibEdgeCount)
 {
-    array[PILL_DISPENSE_STATE] = pillDispenseState;
-    array[REBOOT_STATUS_CODE] = rebootStatusCode;
+    array[PILL_DISPENSE_STATE] = pillDispenseState;                                 // Store pill dispenser state
+    array[REBOOT_STATUS_CODE] = rebootStatusCode;                                   // Store reboot status code
     array[PREV_CALIB_STEP_COUNT_LSB] = (uint8_t)(prevCalibStepCount & 0xFF);        // Store LSB of prevCalibStepCount
     array[PREV_CALIB_STEP_COUNT_MSB] = (uint8_t)((prevCalibStepCount >> 8) & 0xFF); // Store MSB of prevCalibStepCount
-    array[PREV_CALIB_EDGE_COUNT_LSB] = (uint8_t)(calibEdgeCount & 0xFF);        // Store LSB of calibEdgeCount
-    array[PREV_CALIB_EDGE_COUNT_MSB] = (uint8_t)((calibEdgeCount >> 8) & 0xFF); // Store MSB of calibEdgeCount
-    return DISPENSER_STATE_LEN;
+    array[PREV_CALIB_EDGE_COUNT_LSB] = (uint8_t)(calibEdgeCount & 0xFF);            // Store LSB of calibEdgeCount
+    array[PREV_CALIB_EDGE_COUNT_MSB] = (uint8_t)((calibEdgeCount >> 8) & 0xFF);     // Store MSB of calibEdgeCount
+    return DISPENSER_STATE_LEN;                                                     // Return the length of the filled log array
 }
 
 /**
@@ -253,11 +262,13 @@ int createPillDispenserStatusLogArray(uint8_t *array, uint8_t pillDispenseState,
 void updatePillDispenserStatus(DeviceStatus *ptrToStruct)
 {
     uint8_t array[LOG_ARR_LEN]; // Buffer to hold the log array
+    
     // Create a log array based on the provided status information
     int arrayLen = createPillDispenserStatusLogArray(array, ptrToStruct->pillDispenseState,
                                                      ptrToStruct->rebootStatusCode,
-                                                    ptrToStruct->prevCalibStepCount,
-                                                    ptrToStruct->prevCalibEdgeCount);
+                                                     ptrToStruct->prevCalibStepCount,
+                                                     ptrToStruct->prevCalibEdgeCount);
+    
     // Write the log array to EEPROM at the designated address for pill dispenser status
     enterLogToEeprom(array, &arrayLen, REBOOT_STATUS_ADDR);
 }
@@ -310,11 +321,11 @@ int findFirstAvailableLog()
     uint16_t logAddr = 0; // Initialize EEPROM address
 
     // Find the first available log entry
-    while (count <= MAX_LOGS)
+    while (count < MAX_LOGS)
     {
         if (eeprom_read_byte(logAddr) == 0)
         {
-            return count; // Return index if an available log entry is found
+            return count + 1; // Return index if an available log entry is found (adding 1 for 1-based indexing)
         }
         logAddr += LOG_SIZE; // Move to the next log entry
         count++;
@@ -337,17 +348,17 @@ uint32_t getTimestampSinceBoot(const uint64_t bootTimestamp)
 }
 
 /**
- * Writes a log entry to EEPROM using information from the device status structure,
+ * Writes a log entry to EEPROM using information from the device status structure.
  *
  * @param pillDispenserStatusStruct Pointer to the device status structure.
  * @param messageCode               Message code indicating the type of log entry.
  * @param bootTimestamp             Boot timestamp representing the time when the log was created.
  */
-void pushLogToEeprom(DeviceStatus *pillDispenserStatusStruct, log_number messageCode, uint32_t time_ms)
+void pushLogToEeprom(DeviceStatus *pillDispenserStatusStruct, log_number messageCode, uint32_t bootTimestamp)
 {
     uint8_t logArray[LOG_LEN]; // Buffer to hold log data
     // Create a log array with the provided message code and boot timestamp
-    int arrayLen = createLogArray(logArray, messageCode, time_ms);
+    int arrayLen = createLogArray(logArray, messageCode, bootTimestamp);
 
     // Write the log array to EEPROM at the appropriate index based on the log size and unused log index
     enterLogToEeprom(logArray, &arrayLen, (pillDispenserStatusStruct->unusedLogIndex * LOG_SIZE));
@@ -365,7 +376,7 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct)
 {
     if (pillDispenserStatusStruct->unusedLogIndex < MAX_LOGS - 1)
     {
-        pillDispenserStatusStruct->unusedLogIndex++;
+        pillDispenserStatusStruct->unusedLogIndex++; // Increment the unused log index
     }
     else
     {
@@ -419,8 +430,14 @@ bool isValueInArray(int value, int *array, int size)
     return false; // Value not found in the array
 }
 
+/**
+ * Logs device status and triggers a message transmission via LoRa.
+ *
+ * @param dev      Pointer to the device status structure.
+ * @param num      Log number indicating the type of log entry.
+ * @param time_ms  Timestamp representing the time when the log was created in milliseconds.
+ */
 void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms) {
-    pushLogToEeprom(dev, num, time_ms); //TODO: create function to combine these two functions.
-    lora_message(logMessages[num]);
+    pushLogToEeprom(dev, num, time_ms); // Store log in EEPROM
+    lora_message(logMessages[num]);     // Trigger LoRa message transmission
 }
-
