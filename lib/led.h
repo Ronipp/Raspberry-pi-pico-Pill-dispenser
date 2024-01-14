@@ -10,6 +10,7 @@ bool led_error_toggle(uint32_t time);
 void led_calibration_toggle(uint32_t time);
 void led_run_toggle(uint32_t time);
 bool led_timer(uint32_t time, uint32_t delay);
+void led_sequence_toggler(void);
 
 
 #endif

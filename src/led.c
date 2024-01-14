@@ -15,6 +15,9 @@
 #define ERROR_TOGGLE_DELAY_MS 200
 
 static uint led_array[3] = {LED1, LED2, LED3};
+static bool led_on_off = false;
+static uint32_t led_time = 0;
+static uint stage = 0;
 
 /**
  * Initializes the LEDs for PWM functionality and sets up the PWM configuration.
@@ -37,7 +40,6 @@ void led_init(void) {
     }
 }
 
-static bool led_on_off = false;
 
 /**
  * Turns off all LEDs by setting their PWM levels to 0.
@@ -115,7 +117,7 @@ void led_run_toggle(uint32_t time) {
 /**
  * Toggles the LED sequence by cycling through LEDs turning them on one at a time.
  */
-static void led_sequence_toggler(void) {
+void led_sequence_toggler(void) {
     for (int i = 0; i < 3; i++) {
         if (i == stage) {
             pwm_set_gpio_level(led_array[i], BRIGHTNESS); // Turn LED on
@@ -125,6 +127,7 @@ static void led_sequence_toggler(void) {
     }
     stage = (stage + 1) % 3; // Update the stage to cycle LEDs
 }
+
 
 /**
  * Checks the elapsed time and determines if an LED action can be performed based on the delay.
