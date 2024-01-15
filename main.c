@@ -43,6 +43,8 @@
 #define EEPROM_BAUD_RATE 1000000
 #define EEPROM_WRITE_CYCLE_MAX_MS 5
 
+#define WATCHDOG_WORST_CASE_SCEN 2000
+
 
     static bool calib_btn_pressed = false;
     static bool dispense_btn_pressed = false;
@@ -74,8 +76,11 @@ void piezo_handler(void) {
     }
 }
 
+watchdog_enable(WATCHDOG_WORST_CASE_SCEN, false);
+
 int main()
 {
+    watchdog_update();
     // WELCOME TO SPAGHETTI
     stdio_init_all();
     //EEPROM
