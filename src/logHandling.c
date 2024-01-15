@@ -325,7 +325,7 @@ int findFirstAvailableLog()
     {
         if (eeprom_read_byte(logAddr) == 0)
         {
-            return count + 1; // Return index if an available log entry is found (adding 1 for 1-based indexing)
+            return count; // Return index if an available log entry is found (adding 1 for 1-based indexing)
         }
         logAddr += LOG_SIZE; // Move to the next log entry
         count++;

@@ -128,11 +128,12 @@ int main()
 
     bool logged = false;
 
+    // button 3 is for printing logs
     gpio_init(BUTTON3);
     gpio_pull_up(BUTTON3);
     bool pressed = false;
     
-    watchdog_enable(WATCHDOG_WORST_CASE_SCEN, false);
+    watchdog_enable(WATCHDOG_WORST_CASE_SCEN, true);
     while (1) {
         watchdog_update();
         if (!gpio_get(BUTTON3) && !pressed) {

@@ -7,7 +7,7 @@
 
 #define MAX_TRIES 5
 #define BAUDRATE 9600
-#define BUF_LEN 20  
+#define BUF_LEN 50
 
 static uart_inst_t *uart_instance;
 static bool lora_available = false;
