@@ -393,9 +393,9 @@ void printValidLogs()
     for (int i = 0; i < MAX_LOGS; i++)
     {
         uint16_t logAddr = i * LOG_SIZE; // Calculate the EEPROM address for the log entry
-        uint8_t logData[LOG_LEN];        // Buffer to hold log data
+        uint8_t logData[LOG_ARR_LEN];        // Buffer to hold log data
 
-        eeprom_read_page(logAddr, logData, LOG_LEN); // Read log data from EEPROM
+        eeprom_read_page(logAddr, logData, LOG_ARR_LEN); // Read log data from EEPROM
         
         int tmp_log_array_length = LOG_ARR_LEN;
         if (logData[LOG_USE_STATUS] == 1 && verifyDataIntegrity(logData, &tmp_log_array_length) == true)
