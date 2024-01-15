@@ -448,6 +448,7 @@ void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms, ring_buffer
 
 static logdata current = {NOSEND, 0};
 static uint32_t lora_timeout_time = 0;
+
 void logger_try_send_lora(ring_buffer *rb, uint32_t time_ms) {
     if (current.num == NOSEND) {
         if (!rb_empty(rb)) {
@@ -458,14 +459,14 @@ void logger_try_send_lora(ring_buffer *rb, uint32_t time_ms) {
         }
         return;
     }
-    #define LORA_TIMEOUT 500
+    #define LORA_TIMEOUT 2000
     if (time_ms - lora_timeout_time < LORA_TIMEOUT) {
         return;
     }
     lora_timeout_time = time_ms;
     #define STRING_LEN 200
     char tmp_str[STRING_LEN];
-    sprintf(tmp_str, "%u - %s", current.timestamp, logMessages[current.num]);
+    sprintf(tmp_str, "%u - %s", current.timestamp / 1000, logMessages[current.num]);
     if (lora_message(tmp_str)) {
         if (!rb_empty(rb)) {
             current = rb_get(rb);

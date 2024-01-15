@@ -78,6 +78,7 @@ bool lora_message(const char *string) {
     lora_write(new_str); // Send the constructed AT command for message transmission
     char buf[BUF_LEN];
     lora_read_uart(buf, BUF_LEN);
+    printf("%s\n", buf);
     if (strcmp(buf, "+MSG: Start") == 0) {
         return true;
     }
