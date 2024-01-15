@@ -46,8 +46,8 @@
 #define WATCHDOG_WORST_CASE_SCEN 2000
 
 
-    static bool calib_btn_pressed = false;
-    static bool dispense_btn_pressed = false;
+static bool calib_btn_pressed = false;
+static bool dispense_btn_pressed = false;
 
 void button_handler(uint gpio, uint32_t mask) {
     if (gpio == BUTTON1) {
@@ -76,11 +76,11 @@ void piezo_handler(void) {
     }
 }
 
-watchdog_enable(WATCHDOG_WORST_CASE_SCEN, false);
+
 
 int main()
 {
-    watchdog_update();
+
     // WELCOME TO SPAGHETTI
     stdio_init_all();
     //EEPROM
@@ -131,7 +131,10 @@ int main()
     gpio_init(BUTTON3);
     gpio_pull_up(BUTTON3);
     bool pressed = false;
+    
+    watchdog_enable(WATCHDOG_WORST_CASE_SCEN, false);
     while (1) {
+        watchdog_update();
         if (!gpio_get(BUTTON3) && !pressed) {
             printValidLogs();
             pressed = true;
