@@ -1,6 +1,8 @@
 #ifndef logHandling_h
 #define logHandling_h
 
+#include "ring_buffer.h"
+
 extern const char *logMessages[];
 extern const char *pillDispenserStatus[];
 
@@ -39,7 +41,8 @@ typedef enum {
     LOG_FULL_CALIBRATION_ERROR,
     LOG_GREMLINS,
     LOG_DISPENSER_STATUS_READ_ERROR,
-    LOG_BOOTFINISHED
+    LOG_BOOTFINISHED,
+    NOSEND
 } log_number;
 
 typedef enum {
@@ -74,7 +77,7 @@ uint16_t crc16(const uint8_t *data, size_t length);
 void appendCrcToBase8Array(uint8_t *base8Array, int *arrayLen);
 int getChecksum(uint8_t *base8Array, int *arrayLen);
 bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen);
-void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimestamp);
+void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimestamp, ring_buffer *rb);
 void enterLogToEeprom(uint8_t *base8Array, int *arrayLen, int logAddr);
 void zeroAllLogs();
 int createLogArray(uint8_t *array, int messageCode, uint32_t timestamp);
@@ -88,6 +91,7 @@ void updateUnusedLogIndex(struct DeviceStatus *pillDispenserStatusStruct);
 void printValidLogs();
 bool isValueInArray(int value, int *array, int size);
 
-void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms);
+void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms, ring_buffer *rb);
+void logger_try_send_lora(ring_buffer *rb, uint32_t time_ms);
 
 #endif

@@ -7,6 +7,7 @@
 #include "string.h"
 #include "logHandling.h"
 #include "lora.h"
+#include "ring_buffer.h"
 
 #define CRC_LEN 2
 #define LOG_LEN 6                     // Does not include CRC
@@ -128,7 +129,7 @@ bool verifyDataIntegrity(uint8_t *base8Array, int *arrayLen)
  * @param ptrToStruct    Pointer to the DeviceStatus struct to be updated with reboot sequence details.
  * @param bootTimestamp  Boot timestamp for log recording purposes.
  */
-void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimestamp)
+void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimestamp, ring_buffer *rb)
 {
     // Find the first available log, empties all logs if all are full.
     ptrToStruct->unusedLogIndex = findFirstAvailableLog();
@@ -140,34 +141,34 @@ void reboot_sequence(struct DeviceStatus *ptrToStruct, const uint32_t bootTimest
         ptrToStruct->rebootStatusCode = 0;
         ptrToStruct->prevCalibStepCount = 0;
         ptrToStruct->prevCalibEdgeCount = 0;
-        logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp);
+        logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp, rb);
     }
 
     // Write reboot cause to log if watchdog caused reboot.
     uint8_t logArray[LOG_ARR_LEN];
     if (watchdog_caused_reboot() == true)
     {
-        logger_log(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp);
+        logger_log(ptrToStruct, LOG_WATCHDOG_REBOOT, bootTimestamp, rb);
     }
 
     // Log specific reboot causes based on the reboot status code.
     switch (ptrToStruct->rebootStatusCode)
     {
     case IDLE:
-        logger_log(ptrToStruct, LOG_IDLE, bootTimestamp);
+        logger_log(ptrToStruct, LOG_IDLE, bootTimestamp, rb);
         break;
     case DISPENSING:
-        logger_log(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp);
+        logger_log(ptrToStruct, LOG_DISPENSE1_ERROR + ptrToStruct->pillDispenseState, bootTimestamp, rb);
         break;
     case FULL_CALIBRATION:
-        logger_log(ptrToStruct, LOG_FULL_CALIBRATION_ERROR, bootTimestamp);
+        logger_log(ptrToStruct, LOG_FULL_CALIBRATION_ERROR, bootTimestamp, rb);
         break;
     case HALF_CALIBRATION:
-        logger_log(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp);
+        logger_log(ptrToStruct, LOG_HALF_CALIBRATION_ERROR, bootTimestamp, rb);
         break;
     default:
         // Log a generic error and provide a message indicating potential issues.
-        logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp);
+        logger_log(ptrToStruct, LOG_GREMLINS, bootTimestamp, rb);
         printf("There's gremlins in the code.\n");
         break;
     }
@@ -438,7 +439,45 @@ bool isValueInArray(int value, int *array, int size)
  * @param num      Log number indicating the type of log entry.
  * @param time_ms  Timestamp representing the time when the log was created in milliseconds.
  */
-void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms) {
+void logger_log(DeviceStatus *dev, log_number num, uint32_t time_ms, ring_buffer *rb) {
     pushLogToEeprom(dev, num, time_ms); // Store log in EEPROM
-    lora_message(logMessages[num]);     // Trigger LoRa message transmission
+    // lora_message(logMessages[num]);     // Trigger LoRa message transmission
+    logdata data = {num, time_ms};
+    rb_put(rb, data);
+}
+
+static logdata current = {NOSEND, 0};
+static uint32_t lora_timeout_time = 0;
+void logger_try_send_lora(ring_buffer *rb, uint32_t time_ms) {
+    if (current.num == NOSEND) {
+        if (!rb_empty(rb)) {
+            current = rb_get(rb);
+        } else {
+            logdata aaa = {NOSEND, 0};
+            current = aaa;
+        }
+        return;
+    }
+    #define LORA_TIMEOUT 500
+    if (time_ms - lora_timeout_time < LORA_TIMEOUT) {
+        return;
+    }
+    lora_timeout_time = time_ms;
+    #define STRING_LEN 200
+    char tmp_str[STRING_LEN];
+    sprintf(tmp_str, "%u - %s", current.timestamp, logMessages[current.num]);
+    if (lora_message(tmp_str)) {
+        if (!rb_empty(rb)) {
+            current = rb_get(rb);
+        } else {
+            logdata aaa = {NOSEND, 0};
+            current = aaa;
+        }
+    }
+} 
+
+#define LOG_RBUF_SIZE 20
+void init_logger(ring_buffer *rb, logdata *buffer, int len) {
+    rb_init(rb, buffer, len);
+
 }

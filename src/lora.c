@@ -64,8 +64,8 @@ bool lora_init(uart_inst_t *uart, uint TX_pin, uint RX_pin) {
  *
  * @param string The message string to be transmitted via LoRa.
  */
-void lora_message(const char *string) {
-    if (!lora_available) return; // Check if LoRa communication is available
+bool lora_message(const char *string) {
+    if (!lora_available) return false; // Check if LoRa communication is available
 
     size_t len = strlen(string) + 11; // Calculate length for the AT command
     char new_str[len]; // Buffer to construct the AT command
@@ -76,6 +76,12 @@ void lora_message(const char *string) {
     strncat(new_str, "\"\r\n", len); // Append AT command termination
 
     lora_write(new_str); // Send the constructed AT command for message transmission
+    char buf[BUF_LEN];
+    lora_read_uart(buf, BUF_LEN);
+    if (strcmp(buf, "+MSG: Start") == 0) {
+        return true;
+    }
+    return false;
 }
 
 /**
